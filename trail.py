@@ -25,12 +25,11 @@ class TrailSplit:
     path_bottom: Trail
     path_follow: Trail
 
-    def __init__(self):
-        self.myLinkedStack=LinkedStack(Stack(1000))
+
 
     def remove_branch(self) -> TrailStore:
         """Removes the branch, should just leave the remaining following trail."""
-        self.myLinkedStack.pop()
+        
 
 @dataclass
 class TrailSeries:
@@ -44,17 +43,11 @@ class TrailSeries:
     mountain: Mountain
     following: Trail
 
-    def __init__(self):
-        self.myLinkedstack = LinkedStack(Stack(1000))
-        self.copyLinkedstack = LinkedStack(Stack(len(self.myLinkedstack)))
+
 
     def remove_mountain(self) -> TrailStore:
         """Removes the mountain at the beginning of this series."""
-        for count in range(len(self.myLinkedstack)):
-            self.copyLinkedstack.push(self.myLinkedstack.pop())
-        self.copyLinkedstack.pop()
-        for count in range(len(self.copyLinkedstack)):
-            self.myLinkedstack.push(self.copyLinkedstack.pop())
+
 
     def add_mountain_before(self, mountain: Mountain) -> TrailStore:
         """Adds a mountain in series before the current one."""
@@ -79,16 +72,14 @@ class Trail:
 
     store: TrailStore = None
 
-    def __init__(self):
-        self.myLinkedstack = LinkedStack(Stack(1000))
 
     def add_mountain_before(self, mountain: Mountain) -> Trail:
         """Adds a mountain before everything currently in the trail."""
-        self.myLinkedstack.push(mountain)
+
 
     def add_empty_branch_before(self) -> Trail:
         """Adds an empty branch before everything currently in the trail."""
-        self.myLinkedstack.push(None)
+
 
     def follow_path(self, personality: WalkerPersonality) -> None:
         """Follow a path and add mountains according to a personality."""
