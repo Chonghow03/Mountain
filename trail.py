@@ -36,6 +36,7 @@ class TrailSplit:
         """Removes the branch, should just leave the remaining following trail."""
         return self.path_follow.store
 
+
 @dataclass
 class TrailSeries:
     """
@@ -94,17 +95,16 @@ class Trail:
 
     def follow_path(self, personality: WalkerPersonality) -> None:
         """Follow a path and add mountains according to a personality."""
-        store = self.store
-        while store != None:
-            if type(store) == TrailSeries:
-                store = store.following
-                personality.add_mountain(store.mountain)
-            elif type(store) == TrailSplit:
-                if personality.select_branch(store.path_top,store.path_bottom):
-                    # todo merge top path with following path
-                    store = TrailSeries(None, store.path_top)
+        while self.store != None:
+            if type(self.store) == TrailSeries:
+                personality.add_mountain(self.store.mountain)
+                self.store = self.store.following
+            elif type(self.store) == TrailSplit:
+                if personality.select_branch(self.store.path_top,self.store.path_bottom):
+                    self.store = TrailSplit(self.store.path_top,self.store.path_follow,Trail(None))
                 else:
-                    store = store.path_bottom
+                    self.store = TrailSplit(Trail(None),self.store.path_follow,self.store.path_bottom)
+        return None
 
 
     def collect_all_mountains(self) -> list[Mountain]:
