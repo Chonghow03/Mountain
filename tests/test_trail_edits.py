@@ -52,7 +52,6 @@ class TestTrailMethods(unittest.TestCase):
     def test_empty(self):
         empty = Trail(None)
         m = Mountain("M", 1, 2)
-
         res1 = empty.add_mountain_before(m)
 
         self.assertIsInstance(res1, Trail)
@@ -107,12 +106,8 @@ class TestTrailMethods(unittest.TestCase):
         m = Mountain("M", 7, 8)
         my_follow = TrailSeries(m, Trail(None))
         t = TrailSplit(Trail(None), Trail(None), Trail(my_follow))
-        print(my_follow)
-        print(t)
-        print(TrailSeries)
 
         res = t.remove_branch()
-        print(res)
         self.assertIsInstance(res, TrailSeries)
         self.assertEqual(res.mountain, m)
         self.assertEqual(res.following.store, None)
