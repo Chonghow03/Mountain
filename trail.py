@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
+import mountain
 from data_structures.linked_stack import LinkedStack
 from data_structures.stack_adt import Stack
 from mountain import Mountain
@@ -30,13 +31,10 @@ class TrailSplit:
         self.path_bottom = path_bottom
         self.path_follow = path_follow
 
+
     def remove_branch(self) -> TrailStore:
         """Removes the branch, should just leave the remaining following trail."""
-        self.path_top = Trail(None)
-        self.path_bottom = Trail(None)
-        self.path_follow = Trail(None)
-        return
-
+        return self.path_follow.store
 
 @dataclass
 class TrailSeries:
@@ -50,40 +48,29 @@ class TrailSeries:
     mountain: Mountain
     following: Trail
 
-    def __init__(self,mountain,following):
-        self.myLinkedstack = LinkedStack(Stack(1000))
-        self.copyLinkedstack = LinkedStack(Stack(len(self.myLinkedstack)))
+    def __init__(self, mountain, trail):
+        self.mountain = mountain
+        self.following = trail
 
     def remove_mountain(self) -> TrailStore:
         """Removes the mountain at the beginning of this series."""
-        for count in range(len(self.myLinkedstack)):
-            self.copyLinkedstack.push(self.myLinkedstack.pop())
-        self.copyLinkedstack.pop()
-        for count in range(len(self.copyLinkedstack)):
-            self.myLinkedstack.push(self.copyLinkedstack.pop())
-
-
+        return self.following.store
 
     def add_mountain_before(self, mountain: Mountain) -> TrailStore:
         """Adds a mountain in series before the current one."""
-        last_mountain = self.myLinkedstack.pop()
-        self.myLinkedstack.push((mountain,None))
-        self.myLinkedstack.push(last_mountain)
-        return self.myLinkedstack
+        return TrailSeries(mountain,Trail(store=TrailSeries(self.mountain,self.following)))
 
     def add_empty_branch_before(self) -> TrailStore:
         """Adds an empty branch, where the current trailstore is now the following path."""
-        last_mountain = self.myLinkedstack.pop()
-        self.myLinkedstack.push(TrailSplit(Trail(None),Trail(None),Trail(None)))
-        self.myLinkedstack.push(last_mountain)
-        return self.myLinkedstack
+        return TrailSplit(Trail(None),Trail(None),Trail(TrailSeries(self.mountain,self.following)))
+
     def add_mountain_after(self, mountain: Mountain) -> TrailStore:
         """Adds a mountain after the current mountain, but before the following trail."""
-        return self.myLinkedstack.push((mountain,None))
+        return TrailSeries(self.mountain,Trail(store=TrailSeries(mountain,self.following)))
 
     def add_empty_branch_after(self) -> TrailStore:
         """Adds an empty branch after the current mountain, but before the following trail."""
-        return self.myLinkedstack.push(TrailSplit(Trail(None),Trail(None),Trail(None)))
+        return TrailSeries(self.mountain,Trail(TrailSplit(Trail(None),Trail(None),self.following)))
 
 TrailStore = Union[TrailSplit, TrailSeries, None]
 
@@ -92,23 +79,33 @@ class Trail:
 
     store: TrailStore = None
 
-    # def __init__(self):
-    #     self.myLinkedstack = LinkedStack()
+    def __init__(self,store):
+        self.store = store
 
     def add_mountain_before(self, mountain: Mountain) -> Trail:
         """Adds a mountain before everything currently in the trail."""
-        TrailStore.push((TrailStore,mountain))
-        return TrailStore
+        return Trail(TrailSeries(mountain,Trail(None)))
+
 
     def add_empty_branch_before(self) -> Trail:
         """Adds an empty branch before everything currently in the trail."""
-        self.myLinkedstack.push(TrailSplit(Trail(None),Trail(None),Trail(None)))
-        return self.trail_store
+        return Trail(TrailSplit(Trail(None),Trail(None),Trail(None)))
 
 
     def follow_path(self, personality: WalkerPersonality) -> None:
         """Follow a path and add mountains according to a personality."""
-        pass
+        store = self.store
+        while store != None:
+            if type(store) == TrailSeries:
+                store = store.following
+                personality.add_mountain(store.mountain)
+            elif type(store) == TrailSplit:
+                if personality.select_branch(store.path_top,store.path_bottom):
+                    # todo merge top path with following path
+                    store = TrailSeries(None, store.path_top)
+                else:
+                    store = store.path_bottom
+
 
     def collect_all_mountains(self) -> list[Mountain]:
         """Returns a list of all mountains on the trail."""
@@ -123,5 +120,3 @@ class Trail:
         """
         pass
 
-t=Trail(None)
-t.add_mountain_before(Mountain("m",5,5))
