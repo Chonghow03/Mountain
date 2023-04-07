@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Generic, TypeVar, Iterator
 from data_structures.hash_table import LinearProbeTable, FullError
+from data_structures.linked_stack import LinkedStack
 from data_structures.referential_array import ArrayR
 
 K1 = TypeVar('K1')
@@ -28,7 +29,13 @@ class DoubleKeyTable(Generic[K1, K2, V]):
     HASH_BASE = 31
 
     def __init__(self, sizes:list|None=None, internal_sizes:list|None=None) -> None:
-        raise NotImplementedError()
+        if sizes is not None:
+            self.TABLE_SIZES = sizes
+        if internal_sizes is not None:
+            self.TABLE_SIZES = sizes
+        self.size_index = 0
+        self.top_level_linked_stack = LinkedStack(self.TABLE_SIZES[self.size_index])
+        self.bottom_level_linked_stack = LinkedStack(self.TABLE_SIZES[self.size_index])
 
     def hash1(self, key: K1) -> int:
         """
@@ -65,7 +72,33 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         :raises KeyError: When the key pair is not in the table, but is_insert is False.
         :raises FullError: When a table is full and cannot be inserted.
         """
-        raise NotImplementedError()
+        position1 = self.hash1(key1)
+        position2 = self.hash2(key2)
+
+        for i in range (self.table_size):
+            if self.top_level_linked_stack[position1] is None & self.bottom_level_linked_stack[position2] is None:
+                if is_insert:
+                    return (position1,position2)
+                else:
+                    if self.top_level_linked_stack[position1] is None:
+                        raise KeyError(key1)
+                    else:
+                        raise KeyError(key2)
+            elif self.top_level_linked_stack[position1][0] == key1 & self.bottom_level_linked_stack[position2][0] == key2:
+                return (position1,position2)
+            elif self.top_level_linked_stack[position1][0] != key1:
+                position1 = (position1 + 1) % self.table_size
+            else:
+                position2 = (position2 + 1) % self.table_size
+
+        if is_insert:
+            raise FullError("Top-level table is full!")
+        else:
+            if self.top_level_linked_stack[position1] is None:
+                raise KeyError(key1)
+            else:
+                raise KeyError(key2)
+
 
     def iter_keys(self, key:K1|None=None) -> Iterator[K1|K2]:
         """
