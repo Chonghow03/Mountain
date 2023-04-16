@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Union
 if TYPE_CHECKING:
     from personality import WalkerPersonality
 
+
 @dataclass
 class TrailSplit:
     """
@@ -26,11 +27,10 @@ class TrailSplit:
     path_bottom: Trail
     path_follow: Trail
 
-    def __init__(self,path_top,path_bottom,path_follow):
+    def __init__(self, path_top, path_bottom, path_follow):
         self.path_top = path_top
         self.path_bottom = path_bottom
         self.path_follow = path_follow
-
 
     def remove_branch(self) -> TrailStore:
         """Removes the branch, should just leave the remaining following trail."""
@@ -59,59 +59,85 @@ class TrailSeries:
 
     def add_mountain_before(self, mountain: Mountain) -> TrailStore:
         """Adds a mountain in series before the current one."""
-        return TrailSeries(mountain,Trail(store=TrailSeries(self.mountain,self.following)))
+        return TrailSeries(mountain, Trail(store=TrailSeries(self.mountain, self.following)))
 
     def add_empty_branch_before(self) -> TrailStore:
         """Adds an empty branch, where the current trailstore is now the following path."""
-        return TrailSplit(Trail(None),Trail(None),Trail(TrailSeries(self.mountain,self.following)))
+        return TrailSplit(Trail(None), Trail(None), Trail(TrailSeries(self.mountain, self.following)))
 
     def add_mountain_after(self, mountain: Mountain) -> TrailStore:
         """Adds a mountain after the current mountain, but before the following trail."""
-        return TrailSeries(self.mountain,Trail(store=TrailSeries(mountain,self.following)))
+        return TrailSeries(self.mountain, Trail(store=TrailSeries(mountain, self.following)))
 
     def add_empty_branch_after(self) -> TrailStore:
         """Adds an empty branch after the current mountain, but before the following trail."""
-        return TrailSeries(self.mountain,Trail(TrailSplit(Trail(None),Trail(None),self.following)))
+        return TrailSeries(self.mountain, Trail(TrailSplit(Trail(None), Trail(None), self.following)))
+
 
 TrailStore = Union[TrailSplit, TrailSeries, None]
 
+
 @dataclass
 class Trail:
-
     store: TrailStore = None
 
-    def __init__(self,store):
+    def __init__(self, store):
         self.store = store
 
     def add_mountain_before(self, mountain: Mountain) -> Trail:
         """Adds a mountain before everything currently in the trail."""
-        return Trail(TrailSeries(mountain,Trail(None)))
-
+        return Trail(TrailSeries(mountain, Trail(None)))
 
     def add_empty_branch_before(self) -> Trail:
         """Adds an empty branch before everything currently in the trail."""
-        return Trail(TrailSplit(Trail(None),Trail(None),Trail(None)))
+        return Trail(TrailSplit(Trail(None), Trail(None), Trail(None)))
 
-
+    # The difficult part in this is TrailSplit.
+    # TrailSplit has a path_follow, which we need to return to when we're done with the current path.
+    # However, we can go into nested TrailSplits, so we need to keep track of all the paths we need to return to.
+    # We can use a stack for this.
+    # When we enter a TrailSplit, we push the path_follow onto the stack.
+    # When we exit a TrailSplit, we pop the path_follow from the stack.
+    # When the stack is empty, we're done with the trail.
     def follow_path(self, personality: WalkerPersonality) -> None:
         """Follow a path and add mountains according to a personality."""
-        while self.store != None:
-            if type(self.store) == TrailSeries:
-                personality.add_mountain(self.store.mountain)
-                self.store = self.store.following
-            elif type(self.store) == TrailSplit:
-                if personality.select_branch(self.store.path_top,self.store.path_bottom):
-                    self.store = TrailSplit(self.store.path_top,self.store.path_follow,Trail(None))
-                else:
-                    self.store = TrailSplit(Trail(None),self.store.path_follow,self.store.path_bottom)
-        return None
 
+        path = self.store
+
+        # when the path enters a TrailSplit, path_follow is pushed onto this stack ;
+        # when the path ultimately exits, is assigned the value of path_follow pop().
+        path_to_join = LinkedStack()
+
+        while True:
+            if path is None:
+                # check if path_to_join is non-empty (exiting a TrailSplit)
+                if path_to_join.is_empty() is False:
+                    path = path_to_join.pop()
+                else:
+                    print(personality.mountains)
+                    break
+
+            if type(path) == TrailSeries:
+                personality.add_mountain(path.mountain)
+                path = path.following.store
+            elif type(path) == TrailSplit:
+
+                # register path_to_join
+                path_to_join.push(path.path_follow.store)
+
+                if personality.select_branch(path.path_top, path.path_bottom):
+                    # go into top path
+                    path = path.path_top.store
+                else:
+                    # go into bottom path
+                    path = path.path_bottom.store
+        return None
 
     def collect_all_mountains(self) -> list[Mountain]:
         """Returns a list of all mountains on the trail."""
         pass
 
-    def length_k_paths(self, k) -> list[list[Mountain]]: # Input to this should not exceed k > 50, at most 5 branches.
+    def length_k_paths(self, k) -> list[list[Mountain]]:  # Input to this should not exceed k > 50, at most 5 branches.
         """
         Returns a list of all paths of containing exactly k mountains.
         Paths are represented as lists of mountains.
@@ -119,4 +145,3 @@ class Trail:
         Paths are unique if they take a different branch, even if this results in the same set of mountains.
         """
         pass
-
