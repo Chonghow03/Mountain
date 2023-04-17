@@ -79,29 +79,9 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
         for i in range(len(self.top_level_table)):
             if self.top_level_table[position1] is None:
-                for j in range(len(self.top_level_table[position1])):
-                    if self.bottom_level_table[position2] is None:
-                        return (position1,position2)
-                    elif self.bottom_level_table[position2] == key2:
-                        return (position1,position2)
-                    else:
-                        position2 = (position2 + 1) % len(self.bottom_level_table)
-                if is_insert:
-                    raise FullError("Bottom-level table is full!")
-                else:
-                    raise KeyError(key2)
+                self.linear_prob_in_bottom(position1, position2, key2, is_insert)
             elif self.top_level_table[position1][0] == key1:
-                for j in range(len(self.top_level_table[position1])):
-                    if self.bottom_level_table[position2] is None:
-                        return (position1,position2)
-                    elif self.bottom_level_table[position2] == key2:
-                        return (position1,position2)
-                    else:
-                        position2 = (position2 + 1) % len(self.bottom_level_table)
-                if is_insert:
-                    raise FullError("Bottom-level table is full!")
-                else:
-                    raise KeyError(key2)
+                self.linear_prob_in_bottom(position1, position2, key2, is_insert)
             else:
                 position1 = (position1 + 1) % len(self.top_level_table)
         if is_insert:
@@ -109,7 +89,18 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         else:
             raise KeyError(key1)
 
-
+    def linear_prob_in_bottom(self, position1, position2, key2, is_insert):
+        for j in range(len(self.top_level_table[position1])):
+            if self.top_level_table[position1][1][position2] is None:
+                return (position1, position2)
+            elif self.top_level_table[position1][1][position2][0] == key2:
+                return (position1, position2)
+            else:
+                position2 = (position2 + 1) % len(self.bottom_level_table)
+        if is_insert:
+            raise FullError("Bottom-level table is full!")
+        else:
+            raise KeyError(key2)
 
     def iter_keys(self, key:K1|None=None) -> Iterator[K1|K2]:
         """
@@ -162,7 +153,25 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
         :raises KeyError: when the key doesn't exist.
         """
-        raise NotImplementedError()
+        position1 = self.hash1(key[0])
+        position2 = self.hash2(key[1], self.bottom_level_table)
+
+        for i in range(len(self.top_level_table)):
+            if self.top_level_table[position1] is None:
+                raise KeyError(key[0])
+            elif self.top_level_table[position1][0] == key[0]:
+                for j in range(len(self.bottom_level_table)):
+                    if self.top_level_table[position1][1][position2] is None:
+                        raise KeyError(key[1])
+                    elif self.top_level_table[position1][1][position2][0] == key[1]:
+                        return self.top_level_table[position1][1][position2][1]
+                    else:
+                        position2 = (position2 + 1) % len(self.bottom_level_table)
+                raise KeyError(key[1])
+            else:
+                position1 = (position1 + 1) % len(self.top_level_table)
+        raise KeyError(key[1])
+
 
     def __setitem__(self, key: tuple[K1, K2], data: V) -> None:
         """
@@ -175,26 +184,22 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         for i in range(len(self.top_level_table)):
             if self.top_level_table[position1] is None:
                 self.top_level_table[position1] = (key[0],self.bottom_level_table)
-                for j in range(len(self.bottom_level_table)):
-                    if self.bottom_level_table[position2] is None:
-                        self.bottom_level_table[position2] = (key[1],data)
-                    elif self.bottom_level_table[position2] == key[1]:
-                        self.bottom_level_table[position2] = (key[1], data)
-                    else:
-                        position2 = (position2 + 1) % len(self.bottom_level_table)
+                self.set_item_in_bottom(position1,position2,key[1],data)
 
             elif self.top_level_table[position1][0] == key[0]:
                 self.top_level_table[position1] = (key[0], self.bottom_level_table)
-                for j in range(len(self.bottom_level_table)):
-                    if self.bottom_level_table[position2] is None:
-                        self.bottom_level_table[position2] = (key[1], data)
-                    elif self.bottom_level_table[position2] == key[1]:
-                        self.bottom_level_table[position2] = (key[1], data)
-                    else:
-                        position2 = (position2 + 1) % len(self.bottom_level_table)
+                self.set_item_in_bottom(position2,key[1],data)
             else:
                 position1 = (position1 + 1) % len(self.top_level_table)
 
+    def set_item_in_bottom(self, position1:int, position2:int, key, data) -> None:
+        for j in range(len(self.top_level_table[position1][1])):
+            if self.top_level_table[position1][1][position2] is None:
+                self.top_level_table[position1][1][position2] = (key, data)
+            elif self.top_level_table[position1][1][position2][0] == key:
+                self.top_level_table[position1][1][position2] = (key, data)
+            else:
+                position = (position + 1) % len(self.bottom_level_table)
     def __delitem__(self, key: tuple[K1, K2]) -> None:
         """
         Deletes a (key, value) pair in our hash table.
@@ -232,3 +237,4 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         Not required but may be a good testing tool.
         """
         raise NotImplementedError()
+
