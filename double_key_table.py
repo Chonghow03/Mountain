@@ -34,8 +34,10 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         if internal_sizes is not None:
             self.TABLE_SIZES = sizes
         self.size_index = 0
-        self.top_level_linked_stack = LinkedStack(self.TABLE_SIZES[self.size_index])
-        self.bottom_level_linked_stack = LinkedStack(self.TABLE_SIZES[self.size_index])
+        # self.top_level_array = ArrayR(self.TABLE_SIZES[self.size_index])
+        # self.bottom_level_array = ArrayR(self.TABLE_SIZES[self.size_index])
+        self.top_level_table = LinearProbeTable(sizes)
+        self.bottom_level_table = LinearProbeTable(sizes)
 
     def hash1(self, key: K1) -> int:
         """
@@ -73,31 +75,40 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         :raises FullError: When a table is full and cannot be inserted.
         """
         position1 = self.hash1(key1)
-        position2 = self.hash2(key2)
+        position2 = self.hash2(key2, self.bottom_level_table)
 
-        for i in range (self.table_size):
-            if self.top_level_linked_stack[position1] is None & self.bottom_level_linked_stack[position2] is None:
-                if is_insert:
-                    return (position1,position2)
-                else:
-                    if self.top_level_linked_stack[position1] is None:
-                        raise KeyError(key1)
+        for i in range(len(self.top_level_table)):
+            if self.top_level_table[position1] is None:
+                for j in range(len(self.top_level_table[position1])):
+                    if self.bottom_level_table[position2] is None:
+                        return (position1,position2)
+                    elif self.bottom_level_table[position2] == key2:
+                        return (position1,position2)
                     else:
-                        raise KeyError(key2)
-            elif self.top_level_linked_stack[position1][0] == key1 & self.bottom_level_linked_stack[position2][0] == key2:
-                return (position1,position2)
-            elif self.top_level_linked_stack[position1][0] != key1:
-                position1 = (position1 + 1) % self.table_size
+                        position2 = (position2 + 1) % len(self.bottom_level_table)
+                if is_insert:
+                    raise FullError("Bottom-level table is full!")
+                else:
+                    raise KeyError(key2)
+            elif self.top_level_table[position1][0] == key1:
+                for j in range(len(self.top_level_table[position1])):
+                    if self.bottom_level_table[position2] is None:
+                        return (position1,position2)
+                    elif self.bottom_level_table[position2] == key2:
+                        return (position1,position2)
+                    else:
+                        position2 = (position2 + 1) % len(self.bottom_level_table)
+                if is_insert:
+                    raise FullError("Bottom-level table is full!")
+                else:
+                    raise KeyError(key2)
             else:
-                position2 = (position2 + 1) % self.table_size
-
+                position1 = (position1 + 1) % len(self.top_level_table)
         if is_insert:
             raise FullError("Top-level table is full!")
         else:
-            if self.top_level_linked_stack[position1] is None:
-                raise KeyError(key1)
-            else:
-                raise KeyError(key2)
+            raise KeyError(key1)
+
 
 
     def iter_keys(self, key:K1|None=None) -> Iterator[K1|K2]:
@@ -158,7 +169,31 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         Set an (key, value) pair in our hash table.
         """
 
-        raise NotImplementedError()
+        position1 = self.hash1(key[0])
+        position2 = self.hash2(key[1], self.bottom_level_table)
+
+        for i in range(len(self.top_level_table)):
+            if self.top_level_table[position1] is None:
+                self.top_level_table[position1] = (key[0],self.bottom_level_table)
+                for j in range(len(self.bottom_level_table)):
+                    if self.bottom_level_table[position2] is None:
+                        self.bottom_level_table[position2] = (key[1],data)
+                    elif self.bottom_level_table[position2] == key[1]:
+                        self.bottom_level_table[position2] = (key[1], data)
+                    else:
+                        position2 = (position2 + 1) % len(self.bottom_level_table)
+
+            elif self.top_level_table[position1][0] == key[0]:
+                self.top_level_table[position1] = (key[0], self.bottom_level_table)
+                for j in range(len(self.bottom_level_table)):
+                    if self.bottom_level_table[position2] is None:
+                        self.bottom_level_table[position2] = (key[1], data)
+                    elif self.bottom_level_table[position2] == key[1]:
+                        self.bottom_level_table[position2] = (key[1], data)
+                    else:
+                        position2 = (position2 + 1) % len(self.bottom_level_table)
+            else:
+                position1 = (position1 + 1) % len(self.top_level_table)
 
     def __delitem__(self, key: tuple[K1, K2]) -> None:
         """
