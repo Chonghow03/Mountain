@@ -34,8 +34,6 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         if internal_sizes is not None:
             self.TABLE_SIZES = sizes
         self.size_index = 0
-        # self.top_level_array = ArrayR(self.TABLE_SIZES[self.size_index])
-        # self.bottom_level_array = ArrayR(self.TABLE_SIZES[self.size_index])
         self.top_level_table = LinearProbeTable(sizes)
         self.bottom_level_table = LinearProbeTable(sizes)
 
@@ -109,14 +107,21 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = k:
             Returns an iterator of all keys in the bottom-hash-table for k.
         """
-        raise NotImplementedError()
 
     def keys(self, key:K1|None=None) -> list[K1]:
         """
         key = None: returns all top-level keys in the table.
         key = x: returns all bottom-level keys for top-level key x.
         """
-        raise NotImplementedError()
+        key_lst=[]
+        if key == None:
+            for i in range(len(self.top_level_table)):
+                key_lst += self.top_level_table[i][0]
+        else:
+            for j in range(len(self.top_level_table[K1])):
+                key_lst += self.top_level_table[K1][1][j][0]
+        return key_lst
+
 
     def iter_values(self, key:K1|None=None) -> Iterator[V]:
         """
@@ -132,7 +137,14 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = None: returns all values in the table.
         key = x: returns all values for top-level key x.
         """
-        raise NotImplementedError()
+        value_lst = []
+        if key == None:
+            for i in range(len(self.top_level_table)):
+                value_lst += self.top_level_table[i][1]
+        else:
+            for j in range(len(self.top_level_table[K1])):
+                value_lst += self.top_level_table[K1][1][j][1]
+        return value_lst
 
     def __contains__(self, key: tuple[K1, K2]) -> bool:
         """
