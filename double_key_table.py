@@ -37,10 +37,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         if internal_sizes is not None:
             self.INTERNAL_SIZES = sizes
         self.size_index = 0
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
         self.top_level_table = LinearProbeTable(sizes)
         self.top_level_table.hash = lambda k: self.hash1(k)
 
@@ -86,80 +83,14 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             table = LinearProbeTable(self.INTERNAL_SIZES)
             table.hash = lambda k: self.hash2(k, table)
             self.top_level_table[key1] = table
+            print(self.top_level_table.array)
 
+        print('...')
+        for x in self.top_level_table.array:
+            print(x)
+        print(',,,')
         p2 = table._linear_probe(key2, is_insert)
         return (p1, p2)
-
-
-
-        position1 = self.hash1(key1)
-        def linear_probe_top(position1):
-            position = position1
-            print(len(self.top_level_table))
-
-
-            for _ in range(self.top_level_table.table_size):
-                if self.top_level_table[position] is None:  # found empty slot
-                    if not is_insert:  # if searching
-                        raise KeyError(key1)  # key is not in
-                    else:
-                        # create new bottom level table
-                        self.top_level_table[position] = LinearProbeTable(self.INTERNAL_SIZES)
-                        self.top_level_table[position].hash = lambda k: self.hash2(k, self.top_level_table[position])
-                        return position  # if adding, return position
-                elif self.top_level_table[position][0] == key1:  # found key
-                    return position
-                else:  # there is something but not the key, try next
-                    position = (position + 1) % len(self.top_level_table)
-            raise KeyError(key1)
-
-        position1 = linear_probe_top(position1)
-
-        bottom_table = self.top_level_table[position1][1]
-        position2 = self.hash2(key2, bottom_table)
-        def linear_probe_bottom(position2):
-            position = position2
-            for _ in range(len(bottom_table)):
-                if bottom_table[position] is None:  # found empty slot
-                    if not is_insert:  # if searching
-                        raise KeyError(key1)  # key is not in
-                    else:
-                        return position  # if adding, return position
-                elif bottom_table[position][0] == key1:  # found key
-                    return position
-                else:  # there is something but not the key, try next
-                    position = (position + 1) % len(bottom_table)
-            raise KeyError(key1)
-
-        position2 = linear_probe_bottom(position2)
-
-        return (position1, position2)
-
-        # for i in range(len(self.top_level_table)):
-        #     print('hi')
-        #     if self.top_level_table[position1] is None:
-        #         return self.linear_prob_in_bottom(position1, position2, key2, is_insert)
-        #     elif self.top_level_table[position1][0] == key1:
-        #         return self.linear_prob_in_bottom(position1, position2, key2, is_insert)
-        #     else:
-        #         position1 = (position1 + 1) % len(self.top_level_table)
-        # if is_insert:
-        #     raise FullError("Top-level table is full!")
-        # else:
-        #     raise KeyError(key1)
-
-    def linear_prob_in_bottom(self, position1, position2, key2, is_insert):
-        for j in range(self.top_level_table[position1].table_size):
-            if self.top_level_table[position1][1][position2] is None:
-                return (position1, position2)
-            elif self.top_level_table[position1][1][position2][0] == key2:
-                return (position1, position2)
-            else:
-                position2 = (position2 + 1) % len(self.bottom_level_table)
-        if is_insert:
-            raise FullError("Bottom-level table is full!")
-        else:
-            raise KeyError(key2)
 
     def iter_keys(self, key: K1 | None = None) -> Iterator[K1 | K2]:
         """
@@ -257,9 +188,10 @@ class DoubleKeyTable(Generic[K1, K2, V]):
              self._rehash()
              self.__setitem__(key, data)  # try again
         else:
-            if self.top_level_table.array[position[0]][position[1]] is None:  # if it’s a new item
-                self.top_level_table.array[position[0]].count += 1
-            self.top_level_table.array[position[0]]= (key[1], data)
+            print(self.top_level_table.array[position[0]])
+            # if self.top_level_table.array[position[0]][position[1]] is None:  # if it’s a new item
+            # self.top_level_table.array[position[0]].count += 1
+            self.top_level_table.array[position[0]][1][key[1]] =data
 
         # position1 = self.hash1(key[0])
         # position2 = self.hash2(key[1], self.bottom_level_table)
@@ -339,5 +271,5 @@ if __name__ == "__main__":
     dt["Ivy", "Jen"] = 4
     dt["May", "Tom"] = 5
     dt["Tim", "Bob"] = 6
-
+    print('hi')
     print(dt._linear_probe("May", "Jim", True))
