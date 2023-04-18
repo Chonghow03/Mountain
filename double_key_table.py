@@ -84,11 +84,13 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             table.hash = lambda k: self.hash2(k, table)
             self.top_level_table[key1] = table
             print(self.top_level_table.array)
-
+        else:
+            table = table[1]
         print('...')
         for x in self.top_level_table.array:
             print(x)
         print(',,,')
+        print('table: ', table)
         p2 = table._linear_probe(key2, is_insert)
         return (p1, p2)
 
