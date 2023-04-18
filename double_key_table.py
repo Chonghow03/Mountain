@@ -35,7 +35,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         if sizes is not None:
             self.TABLE_SIZES = sizes
         if internal_sizes is not None:
-            self.INTERNAL_SIZES = sizes
+            self.INTERNAL_SIZES = internal_sizes
         self.size_index = 0
 
         self.top_level_table = LinearProbeTable(sizes)
@@ -80,17 +80,12 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
         table = self.top_level_table.array[p1]
         if is_insert and table is None:
+            print(self.INTERNAL_SIZES)
             table = LinearProbeTable(self.INTERNAL_SIZES)
             table.hash = lambda k: self.hash2(k, table)
             self.top_level_table[key1] = table
-            print(self.top_level_table.array)
         else:
             table = table[1]
-        print('...')
-        for x in self.top_level_table.array:
-            print(x)
-        print(',,,')
-        print('table: ', table)
         p2 = table._linear_probe(key2, is_insert)
         return (p1, p2)
 
@@ -107,7 +102,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = None: returns all top-level keys in the table.
         key = x: returns all bottom-level keys for top-level key x.
         """
-        key_lst=[]
+        key_lst = []
         if key == None:
             for i in range(len(self.top_level_table)):
                 key_lst += self.top_level_table[i][0]
@@ -115,7 +110,6 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             for j in range(len(self.top_level_table[K1])):
                 key_lst += self.top_level_table[K1][1][j][0]
         return key_lst
-
 
     def iter_values(self, key: K1 | None = None) -> Iterator[V]:
         """
@@ -184,39 +178,13 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         Set an (key, value) pair in our hash table.
         """
         try:
-            position = self._linear_probe(key[0],key[1], True)
+            position = self._linear_probe(key[0], key[1], True)
             print(position)
         except KeyError:
-             self._rehash()
-             self.__setitem__(key, data)  # try again
+            self._rehash()
+            self.__setitem__(key, data)  # try again
         else:
-            print(self.top_level_table.array[position[0]])
-            # if self.top_level_table.array[position[0]][position[1]] is None:  # if it’s a new item
-            # self.top_level_table.array[position[0]].count += 1
-            self.top_level_table.array[position[0]][1][key[1]] =data
-
-        # position1 = self.hash1(key[0])
-        # position2 = self.hash2(key[1], self.bottom_level_table)
-        #
-        # for i in range(len(self.top_level_table)):
-        #     if self.top_level_table[position1] is None:
-        #         self.top_level_table[position1] = (key[0], self.bottom_level_table)
-        #         self.set_item_in_bottom(position1, position2, key[1], data)
-        #
-        #     elif self.top_level_table[position1][0] == key[0]:
-        #         self.top_level_table[position1] = (key[0], self.bottom_level_table)
-        #         self.set_item_in_bottom(position2, key[1], data)
-        #     else:
-        #         position1 = (position1 + 1) % len(self.top_level_table)
-
-    def set_item_in_bottom(self, position1: int, position2: int, key, data) -> None:
-        for j in range(len(self.top_level_table[position1][1])):
-            if self.top_level_table[position1][1][position2] is None:
-                self.top_level_table[position1][1][position2] = (key, data)
-            elif self.top_level_table[position1][1][position2][0] == key:
-                self.top_level_table[position1][1][position2] = (key, data)
-            else:
-                position = (position + 1) % len(self.bottom_level_table)
+            self.top_level_table.array[position[0]][1][key[1]] = data
 
     def __delitem__(self, key: tuple[K1, K2]) -> None:
         """
@@ -267,11 +235,8 @@ if __name__ == "__main__":
     dt.hash1 = lambda k: ord(k[0]) % 12
     dt.hash2 = lambda k, sub_table: ord(k[-1]) % 5
 
-    dt["Tim", "Jen"] = 1
-    dt["Amy", "Ben"] = 2
     dt["May", "Ben"] = 3
-    dt["Ivy", "Jen"] = 4
     dt["May", "Tom"] = 5
-    dt["Tim", "Bob"] = 6
-    print('hi')
+
     print(dt._linear_probe("May", "Jim", True))
+    # print(ord('m') % 5)
