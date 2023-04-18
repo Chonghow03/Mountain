@@ -82,7 +82,6 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
         table = self.top_level_table.array[p1]
         if is_insert and table is None:
-            print(self.INTERNAL_SIZES)
             table = LinearProbeTable(self.INTERNAL_SIZES)
             table.hash = lambda k: self.hash2(k, table)
             self.top_level_table[key1] = table
@@ -172,25 +171,12 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
         :raises KeyError: when the key doesn't exist.
         """
-        position = self._linear_probe(key[0], key[1], False)
-        position1 = position[0]
-        position2 = position[1]
-
-        for i in range(len(self.top_level_table)):
-            if self.top_level_table[position1] is None:
-                raise KeyError(key[0])
-            elif self.top_level_table[position1][0] == key[0]:
-                for j in range(len(self.bottom_level_table)):
-                    if self.top_level_table[position1][1][position2] is None:
-                        raise KeyError(key[1])
-                    elif self.top_level_table[position1][1][position2][0] == key[1]:
-                        return self.top_level_table[position1][1][position2][1]
-                    else:
-                        position2 = (position2 + 1) % len(self.bottom_level_table)
-                raise KeyError(key[1])
-            else:
-                position1 = (position1 + 1) % len(self.top_level_table)
-        raise KeyError(key[1])
+        try:
+            position = self._linear_probe(key[0], key[1], False)
+        except:
+            raise KeyError(key)
+        else:
+            return self.top_level_table.array[position[0]][1].array[position[1]][1]
 
     def __setitem__(self, key: tuple[K1, K2], data: V) -> None:
         """
@@ -210,7 +196,14 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
         :raises KeyError: when the key doesn't exist.
         """
-        raise NotImplementedError()
+        try:
+            position = self._linear_probe(key[0],key[1],False)
+        except:
+            raise KeyError(key)
+        else:
+            del self.top_level_table.array[position[0]][1][key[1]]
+            if self.top_level_table.array[position[0]][1].is_empty():
+                self.top_level_table.array[position[0]] = None
 
     def _rehash(self) -> None:
         """
@@ -248,14 +241,3 @@ if __name__ == "__main__":
     """
     See spec sheet image for clarification.
     """
-    # # Disable resizing / rehashing.
-    # dt = DoubleKeyTable(sizes=[12], internal_sizes=[5])
-    # dt.hash1 = lambda k: ord(k[0]) % 12
-    # dt.hash2 = lambda k, sub_table: ord(k[-1]) % 5
-    #
-    # dt["May", "Ben"] = 3
-    # dt["May", "Tom"] = 5
-    #
-    #
-    # print(dt._linear_probe("May", "Jim", True))
-    # print(ord('m') % 5)
