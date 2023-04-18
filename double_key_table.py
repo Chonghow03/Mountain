@@ -51,8 +51,10 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         value = 0
         a = 31415
         for char in key:
-            value = (ord(char) + a * value) % self.table_size
-            a = a * self.HASH_BASE % (self.table_size - 1)
+            # value = (ord(char) + a * value) % self.table_size
+            # a = a * self.HASH_BASE % (self.table_size - 1)
+            value = (ord(char) + a * value) % self.table_size()
+            a = a * self.HASH_BASE % (self.table_size() - 1)
         return value
 
     def hash2(self, key: K2, sub_table: LinearProbeTable[K2, V]) -> int:
@@ -96,6 +98,13 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = k:
             Returns an iterator of all keys in the bottom-hash-table for k.
         """
+        if key is None:
+            for key in self.top_level_table.keys():
+                yield key
+        else:
+            table = self.top_level_table[key]
+            for key in table.keys():
+                yield key
 
     def keys(self, key: K1 | None = None) -> list[K1]:
         """
@@ -115,7 +124,17 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = k:
             Returns an iterator of all values in the bottom-hash-table for k.
         """
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        if key is None:
+            # get all tables' values
+            tables = self.top_level_table.values()
+            for t in tables:
+                for value in t.values():
+                    yield value
+        else:
+            table = self.top_level_table[key]
+            for value in table.values():
+                yield value
 
     def values(self, key: K1 | None = None) -> list[V]:
         """
@@ -208,7 +227,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         Return the current size of the table (different from the length)
         """
-        raise NotImplementedError()
+        return self.TABLE_SIZES[self.size_index]
 
     def __len__(self) -> int:
         """
