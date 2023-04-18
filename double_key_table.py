@@ -33,7 +33,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
     def __init__(self, sizes: list | None = None, internal_sizes: list | None = None) -> None:
         if sizes is not None:
-            self.TABLE_SIZES = sizes
+            self.table_size = sizes
         if internal_sizes is not None:
             self.INTERNAL_SIZES = internal_sizes
         self.size_index = 0
@@ -198,7 +198,6 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         try:
             position = self._linear_probe(key[0], key[1], True)
-            print(position)
         except KeyError:
             self._rehash()
             self.__setitem__(key, data)  # try again
