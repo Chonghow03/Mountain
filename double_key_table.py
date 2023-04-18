@@ -102,14 +102,11 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = None: returns all top-level keys in the table.
         key = x: returns all bottom-level keys for top-level key x.
         """
-        key_lst = []
-        if key == None:
-            for i in range(len(self.top_level_table)):
-                key_lst += self.top_level_table[i][0]
+        if key is None:
+            return self.top_level_table.keys()
         else:
-            for j in range(len(self.top_level_table[K1])):
-                key_lst += self.top_level_table[K1][1][j][0]
-        return key_lst
+            table = self.top_level_table[key]
+            return table.keys()
 
     def iter_values(self, key: K1 | None = None) -> Iterator[V]:
         """
@@ -125,14 +122,17 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = None: returns all values in the table.
         key = x: returns all values for top-level key x.
         """
-        value_lst = []
-        if key == None:
-            for i in range(len(self.top_level_table)):
-                value_lst += self.top_level_table[i][1]
+        if key is None:
+            # get all tables' values
+            tables = self.top_level_table.values()
+            values = []
+            for t in tables:
+                values += t.values()
+            return values
+
         else:
-            for j in range(len(self.top_level_table[K1])):
-                value_lst += self.top_level_table[K1][1][j][1]
-        return value_lst
+            table = self.top_level_table[key]
+            return table.values()
 
     def __contains__(self, key: tuple[K1, K2]) -> bool:
         """
@@ -230,13 +230,14 @@ if __name__ == "__main__":
     """
     See spec sheet image for clarification.
     """
-    # Disable resizing / rehashing.
-    dt = DoubleKeyTable(sizes=[12], internal_sizes=[5])
-    dt.hash1 = lambda k: ord(k[0]) % 12
-    dt.hash2 = lambda k, sub_table: ord(k[-1]) % 5
-
-    dt["May", "Ben"] = 3
-    dt["May", "Tom"] = 5
-
-    print(dt._linear_probe("May", "Jim", True))
+    # # Disable resizing / rehashing.
+    # dt = DoubleKeyTable(sizes=[12], internal_sizes=[5])
+    # dt.hash1 = lambda k: ord(k[0]) % 12
+    # dt.hash2 = lambda k, sub_table: ord(k[-1]) % 5
+    #
+    # dt["May", "Ben"] = 3
+    # dt["May", "Tom"] = 5
+    #
+    #
+    # print(dt._linear_probe("May", "Jim", True))
     # print(ord('m') % 5)
