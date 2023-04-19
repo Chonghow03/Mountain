@@ -33,14 +33,17 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
     def __init__(self, sizes: list | None = None, internal_sizes: list | None = None) -> None:
         if sizes is not None:
-            self.table_size = sizes
+            self.TABLE_SIZES = sizes
         if internal_sizes is not None:
             self.INTERNAL_SIZES = internal_sizes
         self.size_index = 0
 
         self.top_level_table = LinearProbeTable(sizes)
+        self.top_level_table.TABLE_SIZES = self.TABLE_SIZES
         self.top_level_table.hash = lambda k: self.hash1(k)
-
+        # self.table_size = property(self.table_size)
+        # self.table_size = self.table_size.getter(self.table_sizee)
+    #
     def hash1(self, key: K1) -> int:
         """
         Hash the 1st key for insert/retrieve/update into the hashtable.
@@ -51,10 +54,9 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         value = 0
         a = 31415
         for char in key:
-            # value = (ord(char) + a * value) % self.table_size
-            # a = a * self.HASH_BASE % (self.table_size - 1)
-            value = (ord(char) + a * value) % self.table_size()
-            a = a * self.HASH_BASE % (self.table_size() - 1)
+            value = (ord(char) + a * value) % self.table_size
+            a = a * self.HASH_BASE % (self.table_size - 1)
+
         return value
 
     def hash2(self, key: K2, sub_table: LinearProbeTable[K2, V]) -> int:
@@ -84,6 +86,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         if is_insert and table is None:
             table = LinearProbeTable(self.INTERNAL_SIZES)
             table.hash = lambda k: self.hash2(k, table)
+            # rehashing handled automatically by setitem in LinearProbeTable
             self.top_level_table[key1] = table
         else:
             table = table[1]
@@ -98,8 +101,9 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             Returns an iterator of all keys in the bottom-hash-table for k.
         """
         if key is None:
-            for key in self.top_level_table.keys():
-                yield key
+            return iter(self.top_level_table.keys())
+            # for key in self.top_level_table.keys():
+            #     yield key
         else:
             table = self.top_level_table[key]
             for key in table.keys():
@@ -182,13 +186,22 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         Set an (key, value) pair in our hash table.
         """
-        try:
+        ori_size = self.top_level_table.table_size
+        # try:
+        #     print('at thsi point, length = ', self.top_level_table.table_size)
+        #     print('at thsi point b, length = ', self.top_level_table.table_size)
+        #
+        # except KeyError:
+        #     pass
+        #     # self._rehash()
+        #     # self.__setitem__(key, data)  # try again
+        # else:
+        position = self._linear_probe(key[0], key[1], True)
+
+        print(position)
+        if ori_size != self.top_level_table.table_size:
             position = self._linear_probe(key[0], key[1], True)
-        except KeyError:
-            self._rehash()
-            self.__setitem__(key, data)  # try again
-        else:
-            self.top_level_table.array[position[0]][1][key[1]] = data
+        self.top_level_table.array[position[0]][1][key[1]] = data
 
     def __delitem__(self, key: tuple[K1, K2]) -> None:
         """
@@ -213,13 +226,16 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         :complexity worst: O(N*hash(K) + N^2*comp(K)) Lots of probing.
         Where N is len(self)
         """
-        raise NotImplementedError()
+        self.top_level_table._rehash()
 
+
+    # todo remove property tag below
+    @property
     def table_size(self) -> int:
         """
         Return the current size of the table (different from the length)
         """
-        return self.TABLE_SIZES[self.size_index]
+        return self.top_level_table.table_size
 
     def __len__(self) -> int:
         """
