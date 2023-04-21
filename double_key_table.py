@@ -40,7 +40,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         self.top_level_table = LinearProbeTable(sizes)
         self.top_level_table.TABLE_SIZES = self.TABLE_SIZES
         self.top_level_table.hash = lambda k: self.hash1(k)
-
+        self.status = "key"
 
     def hash1(self, key: K1) -> int:
         """
@@ -97,18 +97,11 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = k:
             Returns an iterator of all keys in the bottom-hash-table for k.
         """
-        try:
-            if key is None:
-                # return iter(self.top_level_table.keys())
-                for key in self.top_level_table.keys():
-                    yield key
-            else:
-                table = self.top_level_table[key]
-                for key in table.keys():
-                    yield key
-        except BaseException:
-            raise BaseException("No more elements in the list")
-
+        if key is None:
+            return Iterator("key", self.top_level_table)
+        else:
+            table = self.top_level_table[key][1]
+            return Iterator("key", table)
 
     def keys(self, key: K1 | None = None) -> list[K1]:
         """
@@ -129,15 +122,10 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             Returns an iterator of all values in the bottom-hash-table for k.
         """
         if key is None:
-            # get all tables' values
-            tables = self.top_level_table.values()
-            for t in tables:
-                for value in t.values():
-                    yield value
+            return Iterator("value", self.top_level_table)
         else:
-            table = self.top_level_table[key]
-            for value in table.values():
-                yield value
+            table = self.top_level_table[key][1]
+            return Iterator("value", table)
 
     def values(self, key: K1 | None = None) -> list[V]:
         """
@@ -193,7 +181,6 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             position = self._linear_probe(key[0], key[1], True)  # rehash if table size changed
         self.top_level_table.array[position[0]][1][key[1]] = data
 
-
     def __delitem__(self, key: tuple[K1, K2]) -> None:
         """
         Deletes a (key, value) pair in our hash table.
@@ -240,6 +227,45 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         print(self.top_level_table)
 
+
+class Iterator:
+
+    def __init__(self, condition, table):
+        self.condition = condition
+        self.table = table
+        self.outer_index = 0
+        self.inner_index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.condition == "allvalue":
+            while self.outer_index < len(self.table):
+                if self.table[self.outer_index] is None:
+                    self.outer_index += 1
+                else:
+                    inner_table = self.table[self.outer_index][1]
+                    item = inner_table.array[self.inner_index][1]
+                    self.inner_index += 1
+                    if self.inner_index >= inner_table.table:
+                        self.outer_index += 1
+                        self.inner_index = 0
+                    if item is not None:
+                        value = item[1]
+                        return value
+        else:
+            while self.outer_index < len(self.table):
+                if self.table[self.outer_index] is None:
+                    self.outer_index += 1
+                else:
+                    item = self.table[self.outer_index]
+                    self.outer_index += 1
+                    if self.condition == "key":
+                        return item[0]
+                    else:
+                        return item[1][1]
+        raise StopIteration
 
 # if name
 if __name__ == "__main__":
