@@ -84,6 +84,7 @@ class InfiniteHashTable(Generic[K, V]):
                 temp = kv_pair
                 new_table = InfiniteHashTable(table_level)
                 new_table.array[new_table.hash(temp[0])] = (temp[0], temp[1])
+                new_table.count += 1
                 # print('reinserted: ', temp[0], ' at level', table_level + 1, ' at pos ', new_table.hash(temp[0]),
                 #       'with table', new_table.array[new_table.hash(temp[0])])
                 # assign new table to parent, and set key as per instructions
@@ -92,7 +93,9 @@ class InfiniteHashTable(Generic[K, V]):
 
         # insert value
         parent.array[pos] = (key, value)
-        self.count += 1
+        parent.count += 1
+        if parent is not self:
+            self.count += 1
         # print('set item: ', key, ' at level', table_level, ' at pos ', pos, 'with table', kv_pair)
 
     def __delitem__(self, key: K) -> None:
@@ -104,7 +107,8 @@ class InfiniteHashTable(Generic[K, V]):
 
         # if the level is 0, there is no need to delete
         # if the level is larger than 0, table must have more than one element
-        total_to_collapse = 0
+
+        table_to_collapse_to = self
 
         try:
             pos = self.get_location(key)
@@ -113,8 +117,11 @@ class InfiniteHashTable(Generic[K, V]):
         else:
             table = self
             temp = None
+
             for i, p in enumerate(pos):
-                if i == len(pos) - 1 - 1:  # second last table
+
+                if i == len(pos) - 1:  # second last table
+
                     for i, t in enumerate(table.array):
                         if t is not None:
                             print(i, t)
@@ -122,32 +129,38 @@ class InfiniteHashTable(Generic[K, V]):
 
                     table.count -= 1
                     if table.count == 1:
-                        temp = [kv_pair for kv_pair in table.array if kv_pair[0] is not None][0]  # only one element left
-                        if type(temp[1]) == InfiniteHashTable:
-                            total_to_collapse = 0
-                        else:
-                            total_to_collapse += 1
+                        print('collapse')
+                        temp = [kv_pair for kv_pair in table.array if kv_pair is not None][0]  # only one element left
+                        if type(temp) == tuple:
+                            if type(temp[1]) == InfiniteHashTable:
+                                print('trigged')
+                                table_to_collapse_to = None
+                    else:
+                        table_to_collapse_to = None
                     break
-                if i > 0 and table.count == 1:
-                    total_to_collapse += 1
-                else:
-                    total_to_collapse = 0
+
+                if i> 0:
+                    if table.count == 1:   # i must be > 0 as we do not collapse into parent table
+                        if table_to_collapse_to is None:
+                            table_to_collapse_to = table
+                            print('trig')
+                    else:
+                        table_to_collapse_to = None
+                print('current table: ', table_to_collapse_to, 'level: ', table.level)
 
                 table = table.array[p][1]
 
-            table = self
-            print('total to collapse is ', total_to_collapse)
-            if total_to_collapse > 0:
-                for i in range(len(pos) - total_to_collapse - 1):
-                    table = table.array[pos[i]]
-                table.array[pos[len(pos) - total_to_collapse - 1]] = temp[0], temp[1]
+            if table_to_collapse_to is not None and len(pos) > 1:
+                table_to_collapse_to.array[table_to_collapse_to.hash(temp[0])] = (temp[0], temp[1])
+            if table is not self:
 
-            self.count -= 1
+                self.count -= 1
 
     def __len__(self):
         """
         Returns the number of elements in the hash table.
         """
+        print('count is: ', self.count)
         return self.count
 
     def __str__(self) -> str:
@@ -156,6 +169,11 @@ class InfiniteHashTable(Generic[K, V]):
 
         Not required but may be a good testing tool.
         """
+        # for i, t in enumerate(ih.array):
+        #     if t is not None:
+        #         print(i, t)
+        #
+        # values = []
         return str(self.array)
 
     def get_location(self, key):
@@ -174,11 +192,14 @@ class InfiniteHashTable(Generic[K, V]):
                 for i, t in enumerate(kv_pair[1].array):
                     if t is not None:
                         print(i, t)
+                print('-----------')
                 pos = kv_pair[1].hash(key)
                 kv_pair = kv_pair[1].array[pos]
                 path.append(pos)
             else:
-                return path  # found value
+                if kv_pair[0] == key:
+                    return path
+                raise KeyError('Key not found')
         raise KeyError()  # not found
 
     def __contains__(self, key: K) -> bool:
@@ -205,18 +226,23 @@ if __name__ == '__main__':
     # print(hashh('leg', 1))
     # print('---')
     ih = InfiniteHashTable()
-    # ih["lin"] = 1
-    # ih["leg"] = 2
+    ih["lin"] = 1
+    ih["leg"] = 2
     ih["mine"] = 3
-    # ih["linked"] = 4
-    # ih["limp"] = 5
+    ih["linked"] = 4
+    ih["limp"] = 5
     ih["mining"] = 6
     # ih["jake"] = 7
-    # ih["linger"] = 8
+    ih["linger"] = 8
 
     # print(ih["mining"])
-    print('---')
+    del ih['limp']
     del ih["mine"]
-    print('---')
-    # print(ih["mining"])
-    pass
+    for i, t in enumerate(ih.array):
+        if t is not None:
+            print(i, t)
+    print('-----------')
+    print(ih.get_location('linger'))
+    print('--')
+    del ih['linger']
+    print(ih.get_location('linger'))
