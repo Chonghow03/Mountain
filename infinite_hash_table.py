@@ -119,41 +119,28 @@ class InfiniteHashTable(Generic[K, V]):
             temp = None
 
             for i, p in enumerate(pos):
-
-                if i == len(pos) - 1:  # second last table
-
-                    for i, t in enumerate(table.array):
-                        if t is not None:
-                            print(i, t)
+                if i == len(pos) - 1:  # last table
                     table.array[p] = None
-
                     table.count -= 1
                     if table.count == 1:
-                        print('collapse')
                         temp = [kv_pair for kv_pair in table.array if kv_pair is not None][0]  # only one element left
-                        if type(temp) == tuple:
-                            if type(temp[1]) == InfiniteHashTable:
-                                print('trigged')
-                                table_to_collapse_to = None
+                        if type(temp[1]) == InfiniteHashTable:
+                            table_to_collapse_to = None
                     else:
                         table_to_collapse_to = None
                     break
 
-                if i> 0:
+                if i > 0:
                     if table.count == 1:   # i must be > 0 as we do not collapse into parent table
                         if table_to_collapse_to is None:
                             table_to_collapse_to = table
-                            print('trig')
                     else:
                         table_to_collapse_to = None
-                print('current table: ', table_to_collapse_to, 'level: ', table.level)
-
                 table = table.array[p][1]
 
             if table_to_collapse_to is not None and len(pos) > 1:
                 table_to_collapse_to.array[table_to_collapse_to.hash(temp[0])] = (temp[0], temp[1])
             if table is not self:
-
                 self.count -= 1
 
     def __len__(self):

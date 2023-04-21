@@ -131,7 +131,17 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = k:
             Returns an iterator of all values in the bottom-hash-table for k.
         """
-        raise NotImplementedError()
+        try:
+            if key is None:
+                # return iter(self.top_level_table.keys())
+                for key in self.top_level_table.keys():
+                    yield key
+            else:
+                table = self.top_level_table[key]
+                for key in table.keys():
+                    yield key
+        except BaseException:
+            raise BaseException("No more elements in the list")
 
     def values(self, key: K1 | None = None) -> list[V]:
         """
