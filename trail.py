@@ -135,7 +135,41 @@ class Trail:
 
     def collect_all_mountains(self) -> list[Mountain]:
         """Returns a list of all mountains on the trail."""
-        pass
+        mountains = []
+
+        path = self.store
+
+        # the size of the following two stacks should differ by at most 1
+        follow_paths = LinkedStack()
+        bottom_paths = LinkedStack()
+
+        while True:
+            if path is None:
+                # check if path_to_join is non-empty (exiting a TrailSplit)
+                if follow_paths.is_empty() is False:
+                    if len(follow_paths) == len(bottom_paths):
+                        path = bottom_paths.pop()
+                    else:
+                        path = follow_paths.pop()
+                else:
+                    break
+
+            if type(path) == TrailSeries:
+                mountains.append(path.mountain)
+                path = path.following.store
+            elif type(path) == TrailSplit:
+
+                # register path_to_join
+                follow_paths.push(path.path_follow.store)
+
+                # store bottom path
+                bottom_paths.push(path.path_bottom.store)
+
+                # go into top path
+                path = path.path_top.store
+
+        return mountains
+
 
     def length_k_paths(self, k) -> list[list[Mountain]]:  # Input to this should not exceed k > 50, at most 5 branches.
         """
@@ -144,4 +178,55 @@ class Trail:
 
         Paths are unique if they take a different branch, even if this results in the same set of mountains.
         """
-        pass
+
+        all_paths = []
+        current_path = []
+        current_k = 0
+        path = self.store
+        follow_paths = LinkedStack()
+
+        print('finding path for k = ', k)
+
+        # walk until reach a split
+        while True:
+            if path is None:
+                if follow_paths.is_empty() is False:
+                    path = follow_paths.pop()
+                else:
+                    # if current_k == k:
+                    return [current_path]
+                    # return []
+
+            if type(path) == TrailSeries:
+                current_path.append(path.mountain)
+                current_k += 1
+                path = path.following.store
+            elif type(path) == TrailSplit:
+                follow_paths.push(path.path_follow.store)
+                is_split = True
+                break
+        print(path.path_top)
+        print(path.path_bottom)
+        if is_split:
+
+            pass
+        else:
+            all_top_paths = path.path_top.length_k_paths(k-current_k)
+            all_bottom_paths = path.path_bottom.length_k_paths(k-current_k)
+
+        if len(all_top_paths) > 0:
+            for top_path in all_top_paths:
+                print('top_path', top_path)
+                print([]+[1,2,3])
+                all_paths.append(current_path+top_path)
+                # all_paths.append(current_path.extend(top_path))
+                print('final path', all_paths)
+        if len(all_bottom_paths) > 0:
+            for bottom_path in all_bottom_paths:
+                all_paths.append(current_path+bottom_path)
+
+        print('returning all_paths', all_paths)
+        return all_paths
+
+
+
