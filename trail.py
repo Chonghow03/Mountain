@@ -228,5 +228,3 @@ class Trail:
         print('returning all_paths', all_paths)
         return all_paths
 
-
-
