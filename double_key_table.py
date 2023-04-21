@@ -36,11 +36,18 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             self.TABLE_SIZES = sizes
         if internal_sizes is not None:
             self.INTERNAL_SIZES = internal_sizes
+<<<<<<< Updated upstream
         self.top_level_table = LinearProbeTable(sizes)
         self.top_level_table.TABLE_SIZES = self.TABLE_SIZES
         self.top_level_table.hash = lambda k: self.hash1(k)
         # self.table_size = property(self.table_size)
         # self.table_size = self.table_size.getter(self.table_sizee)
+=======
+        self.size_index = 0
+        self.top_level_table = LinearProbeTable(self.TABLE_SIZES)
+        self.top_level_table.hash = lambda k: self.hash1(k)
+        self.table_size = self.table_size()
+>>>>>>> Stashed changes
 
     def hash1(self, key: K1) -> int:
         """
@@ -52,6 +59,11 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         value = 0
         a = 31415
         for char in key:
+<<<<<<< Updated upstream
+=======
+            # value = (ord(char) + a * value) % self.table_size
+            # a = a * self.HASH_BASE % (self.table_size - 1)
+>>>>>>> Stashed changes
             value = (ord(char) + a * value) % self.table_size
             a = a * self.HASH_BASE % (self.table_size - 1)
         return value
@@ -131,6 +143,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         key = k:
             Returns an iterator of all values in the bottom-hash-table for k.
         """
+<<<<<<< Updated upstream
         try:
             if key is None:
                 # return iter(self.top_level_table.keys())
@@ -142,16 +155,38 @@ class DoubleKeyTable(Generic[K1, K2, V]):
                     yield key
         except BaseException:
             raise BaseException("No more elements in the list")
+=======
+        if key is None:
+            # get all tables' values
+            tables = self.top_level_table.values()
+            for t in tables:
+                for value in t.values():
+                    yield value
+        else:
+            table = self.top_level_table[key]
+            for value in table.values():
+                yield value
+>>>>>>> Stashed changes
 
     def values(self, key: K1 | None = None) -> list[V]:
         """
         key = None: returns all values in the table.
         key = x: returns all values for top-level key x.
         """
+<<<<<<< Updated upstream
         value_lst = []
         if key == None:
             for i in range(len(self.top_level_table)):
                 value_lst += self.top_level_table[i][1]
+=======
+        if key is None:
+            # get all tables' values
+            tables = self.top_level_table.values()
+            values = []
+            for t in tables:
+                values += t.values()
+            return values
+>>>>>>> Stashed changes
         else:
             for j in range(len(self.top_level_table[K1])):
                 value_lst += self.top_level_table[K1][1][j][1]
@@ -187,12 +222,25 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         Set an (key, value) pair in our hash table.
         """
+<<<<<<< Updated upstream
         ori_size = self.top_level_table.table_size
         position = self._linear_probe(key[0], key[1], True)
 
         if ori_size != self.top_level_table.table_size:
             position = self._linear_probe(key[0], key[1], True)  # rehash if table size changed
         self.top_level_table.array[position[0]][1][key[1]] = data
+=======
+        # try:
+        #     position = self._linear_probe(key[0], key[1], True)
+        # except KeyError:
+        #     self._rehash()
+        #     self.__setitem__(key, data)  # try again
+        # else:
+        #     self.top_level_table.array[position[0]][1][key[1]] = data
+        position = self._linear_probe(key[0], key[1], True)
+        self.top_level_table.array[position[0]][1][key[1]] = data
+        print(self.top_level_table.table_size)
+>>>>>>> Stashed changes
 
     def __delitem__(self, key: tuple[K1, K2]) -> None:
         """
@@ -217,7 +265,12 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         :complexity worst: O(N*hash(K) + N^2*comp(K)) Lots of probing.
         Where N is len(self)
         """
+<<<<<<< Updated upstream
         self.top_level_table._rehash()
+=======
+        # self.top_level_table._rehash()
+
+>>>>>>> Stashed changes
 
     # todo remove property tag below
     @property
@@ -231,7 +284,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         """
         Returns number of elements in the hash table
         """
-        raise NotImplementedError()
+        return self.top_level_table.count
 
     def __str__(self) -> str:
         """
@@ -239,7 +292,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
         Not required but may be a good testing tool.
         """
-        raise NotImplementedError()
+        print(self.top_level_table)
 
 
 # if name
@@ -247,5 +300,26 @@ if __name__ == "__main__":
     """
     See spec sheet image for clarification.
     """
+<<<<<<< Updated upstream
     # Disable resizing / rehashing.
    
+=======
+    dt = DoubleKeyTable(sizes=[3, 5], internal_sizes=[3, 5])
+    dt.hash1 = lambda k: ord(k[0]) % dt.table_size
+    dt.hash2 = lambda k, sub_table: ord(k[-1]) % sub_table.table_size
+
+    dt["Tim", "Bob"] = 1
+    # No resizing yet.
+    print(dt.table_size) #3
+    # print(dt._linear_probe("Tim", "Bob", False)) #(0,2)
+    dt["Tim", "Jen"] = 2
+    # Internal resize.
+    print(dt.table_size) #3
+    # print(dt._linear_probe("Tim", "Bob", False)) #(0,3)
+
+    # External resize
+    dt["Pip", "Bob"] = 4
+    print(dt.table_size) #5
+    # print(dt._linear_probe("Tim", "Bob", False)) #(4,3)
+    # print(dt._linear_probe("Pip", "Bob", False)) #(0,2)
+>>>>>>> Stashed changes

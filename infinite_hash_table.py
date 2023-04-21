@@ -24,10 +24,16 @@ class InfiniteHashTable(Generic[K, V]):
 
     TABLE_SIZE = 27
 
+<<<<<<< Updated upstream
     def __init__(self, level=0) -> None:
         self.array: ArrayR[tuple[K, V]] = ArrayR(self.TABLE_SIZE)
         self.level = level
         self.count = 0
+=======
+    def __init__(self,level=4) -> None:
+        self.level = level
+        self.
+>>>>>>> Stashed changes
 
     def hash(self, key: K) -> int:
         if self.level < len(key):
@@ -54,6 +60,7 @@ class InfiniteHashTable(Generic[K, V]):
         """
         Set an (key, value) pair in our hash table.
         """
+<<<<<<< Updated upstream
         # table_level = self.level  # current table level
 
         pos: int | None = None
@@ -97,6 +104,12 @@ class InfiniteHashTable(Generic[K, V]):
         if parent is not self:
             self.count += 1
         # print('set item: ', key, ' at level', table_level, ' at pos ', pos, 'with table', kv_pair)
+=======
+        for alphabets in key:
+            if
+
+
+>>>>>>> Stashed changes
 
     def __delitem__(self, key: K) -> None:
         """
