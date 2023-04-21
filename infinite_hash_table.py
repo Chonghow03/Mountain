@@ -2,6 +2,8 @@ from __future__ import annotations
 from typing import Generic, TypeVar
 from data_structures.hash_table import LinearProbeTable, FullError
 
+from data_structures.linked_stack import LinkedStack
+
 from data_structures.referential_array import ArrayR
 
 K = TypeVar("K")
@@ -73,14 +75,19 @@ class InfiniteHashTable(Generic[K, V]):
             if type(kv_pair[1]) == InfiniteHashTable:
                 step_into_table(kv_pair[1])
             else:
-                # already occupied, create new table to resolve collision
+                # check if key is the same; if so, replace value
+                if kv_pair[0] == key:
+                    parent.array[pos] = (key, value)
+                    return
+
+                # already occupied by another key; create new table to resolve collision
                 temp = kv_pair
                 new_table = InfiniteHashTable(table_level)
                 new_table.array[new_table.hash(temp[0])] = (temp[0], temp[1])
                 # print('reinserted: ', temp[0], ' at level', table_level + 1, ' at pos ', new_table.hash(temp[0]),
                 #       'with table', new_table.array[new_table.hash(temp[0])])
                 # assign new table to parent, and set key as per instructions
-                parent.array[pos] = (key[0:min(table_level + 1, len(key))] + '*', new_table)
+                parent.array[pos] = (key[0:min(table_level, len(key))] + '*', new_table)
                 step_into_table(new_table)
 
         # insert value
@@ -94,20 +101,48 @@ class InfiniteHashTable(Generic[K, V]):
 
         :raises KeyError: when the key doesn't exist.
         """
-        # try:
-        #     pos = self.get_location(key)
-        # except KeyError:
-        #     raise KeyError('Key not found')
-        # else:
-        #     parent = self
-        #     table = self
-        #     for i, p in enumerate(pos):
-        #         if i == len(pos) - 1:
-        #             table.array[p] = None
-        #             self.count -= 1
-        #         table = table.array[p][1]
 
+        # if the level is 0, there is no need to delete
+        # if the level is larger than 0, table must have more than one element
+        total_to_collapse = 0
 
+        try:
+            pos = self.get_location(key)
+        except KeyError:
+            raise KeyError('Key not found')
+        else:
+            table = self
+            temp = None
+            for i, p in enumerate(pos):
+                if i == len(pos) - 1 - 1:  # second last table
+                    for i, t in enumerate(table.array):
+                        if t is not None:
+                            print(i, t)
+                    table.array[p] = None
+
+                    table.count -= 1
+                    if table.count == 1:
+                        temp = [kv_pair for kv_pair in table.array if kv_pair[0] is not None][0]  # only one element left
+                        if type(temp[1]) == InfiniteHashTable:
+                            total_to_collapse = 0
+                        else:
+                            total_to_collapse += 1
+                    break
+                if i > 0 and table.count == 1:
+                    total_to_collapse += 1
+                else:
+                    total_to_collapse = 0
+
+                table = table.array[p][1]
+
+            table = self
+            print('total to collapse is ', total_to_collapse)
+            if total_to_collapse > 0:
+                for i in range(len(pos) - total_to_collapse - 1):
+                    table = table.array[pos[i]]
+                table.array[pos[len(pos) - total_to_collapse - 1]] = temp[0], temp[1]
+
+            self.count -= 1
 
     def __len__(self):
         """
@@ -135,10 +170,10 @@ class InfiniteHashTable(Generic[K, V]):
 
         while kv_pair is not None:
             if type(kv_pair[1]) == InfiniteHashTable:
-                #     print('pos is ', pos)
-                #     for i, t in enumerate(kv_pair[1].array):
-                #         if t is not None:
-                #             print(i, t)
+                print('pos is ', pos)
+                for i, t in enumerate(kv_pair[1].array):
+                    if t is not None:
+                        print(i, t)
                 pos = kv_pair[1].hash(key)
                 kv_pair = kv_pair[1].array[pos]
                 path.append(pos)
@@ -169,4 +204,19 @@ if __name__ == '__main__':
     # print(hashh('lin', 1))
     # print(hashh('leg', 1))
     # print('---')
+    ih = InfiniteHashTable()
+    # ih["lin"] = 1
+    # ih["leg"] = 2
+    ih["mine"] = 3
+    # ih["linked"] = 4
+    # ih["limp"] = 5
+    ih["mining"] = 6
+    # ih["jake"] = 7
+    # ih["linger"] = 8
+
+    # print(ih["mining"])
+    print('---')
+    del ih["mine"]
+    print('---')
+    # print(ih["mining"])
     pass
