@@ -1,10 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-import mountain
 from data_structures.linked_stack import LinkedStack
-from data_structures.stack_adt import Stack
 from mountain import Mountain
+import copy
 
 from typing import TYPE_CHECKING, Union
 
@@ -92,45 +91,28 @@ class Trail:
         """Adds an empty branch before everything currently in the trail."""
         return Trail(TrailSplit(Trail(None), Trail(None), Trail(None)))
 
-    # The difficult part in this is TrailSplit.
     # TrailSplit has a path_follow, which we need to return to when we're done with the current path.
     # However, we can go into nested TrailSplits, so we need to keep track of all the paths we need to return to.
-    # We can use a stack for this.
-    # When we enter a TrailSplit, we push the path_follow onto the stack.
-    # When we exit a TrailSplit, we pop the path_follow from the stack.
+    # When we enter a TrailSplit, we push the path_follow onto a stack.
+    # When we exit a TrailSplit, we get path_follow by popping from the stack.
     # When the stack is empty, we're done with the trail.
     def follow_path(self, personality: WalkerPersonality) -> None:
         """Follow a path and add mountains according to a personality."""
-
-        path = self.store
-
-        # when the path enters a TrailSplit, path_follow is pushed onto this stack ;
-        # when the path ultimately exits, is assigned the value of path_follow pop().
-        path_to_join = LinkedStack()
+        trail = self.store
+        follow_paths = LinkedStack()
 
         while True:
-            if path is None:
-                # check if path_to_join is non-empty (exiting a TrailSplit)
-                if path_to_join.is_empty() is False:
-                    path = path_to_join.pop()
-                else:
-                    print(personality.mountains)
+            if trail is None:
+                if follow_paths.is_empty():  # if
                     break
-
-            if type(path) == TrailSeries:
-                personality.add_mountain(path.mountain)
-                path = path.following.store
-            elif type(path) == TrailSplit:
-
-                # register path_to_join
-                path_to_join.push(path.path_follow.store)
-
-                if personality.select_branch(path.path_top, path.path_bottom):
-                    # go into top path
-                    path = path.path_top.store
-                else:
-                    # go into bottom path
-                    path = path.path_bottom.store
+                trail = follow_paths.pop()  # else
+            if isinstance(trail, TrailSeries):
+                personality.add_mountain(trail.mountain)
+                trail = trail.following.store
+            elif isinstance(trail, TrailSplit):
+                follow_paths.push(trail.path_follow.store)
+                trail = trail.path_top.store if personality.select_branch(trail.path_top, trail.path_bottom) \
+                    else trail.path_bottom.store   # select trail based on personality
         return None
 
     def collect_all_mountains(self) -> list[Mountain]:
@@ -179,10 +161,12 @@ class Trail:
             if trail is None:
                 if not follow_stack_copy.is_empty():
                     traverse(follow_stack_copy.pop(), current_path_copy, current_k, follow_stack_copy)
-                if current_k == k:
-                    all_paths.append(current_path_copy)
                 return  # not necessary, but makes it clear that this is the end of the path
             elif isinstance(trail, TrailSeries):
+                # this code below differs all_mountains() from length_k_paths()
+                if trail.mountain not in all_mountains:
+                    all_mountains.append(trail.mountain)
+
                 current_path_copy.append(trail.mountain)
                 traverse(trail.following.store, current_path_copy, current_k + 1, follow_stack_copy)
             elif isinstance(trail, TrailSplit):
@@ -201,7 +185,6 @@ class Trail:
 
         Paths are unique if they take a different branch, even if this results in the same set of mountains.
         """
-        import copy
         all_paths = []
 
         def traverse(trail, current_path, current_k, follow_stack=None):
