@@ -4,13 +4,14 @@ from algorithms.binary_search import binary_search
 from algorithms.mergesort import mergesort
 from mountain import Mountain
 
+
 class MountainOrganiser:
 
     def __init__(self) -> None:
         self.mountain_lst = []
 
     def cur_position(self, mountain: Mountain) -> int:
-        index = binary_search(self.mountain_lst,mountain)
+        index = binary_search(self.mountain_lst, mountain)
         if self.mountain_lst[index] != mountain:
             raise KeyError()
         return index

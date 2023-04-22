@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from typing import Generic, TypeVar, Iterator
-from data_structures.hash_table import LinearProbeTable, FullError
-from data_structures.linked_stack import LinkedStack
-from data_structures.referential_array import ArrayR
+from data_structures.hash_table import LinearProbeTable
 
 K1 = TypeVar('K1')
 K2 = TypeVar('K2')
@@ -27,13 +25,13 @@ class DoubleKeyTable(Generic[K1, K2, V]):
     # No test case should exceed 1 million entries.
     TABLE_SIZES = [5, 13, 29, 53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241,
                    786433, 1572869]
-    INTERNAL_SIZES = [5, 13, 29, 53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241,
-                      786433, 1572869]
+    INTERNAL_SIZES = []
     HASH_BASE = 31
 
     def __init__(self, sizes: list | None = None, internal_sizes: list | None = None) -> None:
         if sizes is not None:
             self.TABLE_SIZES = sizes
+            self.INTERNAL_SIZES = sizes
         if internal_sizes is not None:
             self.INTERNAL_SIZES = internal_sizes
 
