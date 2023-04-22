@@ -6,47 +6,52 @@ from mountain_organiser import MountainOrganiser
 class MountainManager:
 
     def __init__(self) -> None:
-        self.MM_lst = []
+        self.organisers = []  # stores a list of tuple ('difficulty', MountainOrganiser)
 
     def add_mountain(self, mountain: Mountain):
-        for MM in range(len(self.MM_lst)):
-            if mountain.difficulty_level == self.MM_lst[MM][0]:
-                mountain_organiser = self.MM_lst[MM][1]
-                mountain_organiser.add_mountains([mountain])
+        for organiser_tuple in self.organisers:
+            if mountain.difficulty_level == organiser_tuple[0]:
+                mo = organiser_tuple[1]
+                mo.add_mountains([mountain])
                 return
-        mountain_organiser = MountainOrganiser()
-        mountain_organiser.add_mountains([mountain])
-        self.MM_lst.append((mountain.difficulty_level,mountain_organiser))
+        mo = MountainOrganiser()
+        mo.add_mountains([mountain])
+        self.organisers.append((mountain.difficulty_level, mo))
 
     def remove_mountain(self, mountain: Mountain):
-        for MM in range(len(self.MM_lst)):
-            if mountain.difficulty_level == self.MM_lst[MM][0]:
-                mountain_organiser = self.MM_lst[MM][1]
-                mountain_organiser.mountain_lst.remove(mountain)
-                if len(mountain_organiser.mountain_lst) == 0:
-                    self.MM_lst.remove(self.MM_lst[MM])
+        for organiser_tuple in self.organisers:
+            if mountain.difficulty_level == organiser_tuple[0]:
+                mo = organiser_tuple[1]
+                mo.mountain_lst.remove(mountain)
+                if len(mo.mountain_lst) == 0:
+                    self.organisers.remove(organiser_tuple)
                 return
         raise KeyError()
 
     def edit_mountain(self, old: Mountain, new: Mountain):
-        for MM in range(len(self.MM_lst)):
-            for mountain in MM[1].mountain_lst:
+        # for organiser_tuple in range(len(self.organisers)):
+        #     for mountain in organiser_tuple[1].mountain_lst:
+        #         if mountain == old:
+        #             mountain = new
+        for organiser_tuple in self.organisers:
+            for mountain in organiser_tuple[1].mountain_lst:
                 if mountain == old:
-                    mountain = new
+                    organiser_tuple[1].mountain_lst.remove(mountain)
+                    organiser_tuple[1].mountain_lst.append(new)
+                    return
         raise KeyError()
 
     def mountains_with_difficulty(self, diff: int):
-        for i in range(len(self.MM_lst)):
-            if diff == self.MM_lst[i][0]:
-                mountain_organiser = self.MM_lst[i][1]
-                return mountain_organiser.mountain_lst
-        return []
+        for organiser_tuple in self.organisers:
+            if diff == organiser_tuple[0]:
+                return organiser_tuple[1].mountain_lst
+        return []  # if no mountains with that difficulty
 
     def group_by_difficulty(self):
-        MM_mountain = []
-        self.MM_lst = mergesort(self.MM_lst)
-        for MO in self.MM_lst:
-            MM_mountain.append(MO[1].mountain_lst)
-        return MM_mountain
+        diff_groups = []
+        self.organisers = mergesort(self.organisers)
+        for organiser_tuple in self.organisers:
+            diff_groups.append(organiser_tuple[1].mountain_lst)
+        return diff_groups
 
 
