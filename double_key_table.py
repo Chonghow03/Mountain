@@ -98,9 +98,9 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             Returns an iterator of all keys in the bottom-hash-table for k.
         """
         if key is None:
-            return Iterator("key", self.top_level_table)
+            return Iterator("key", self.top_level_table.array)
         else:
-            table = self.top_level_table[key][1]
+            table = self.top_level_table.array[key][1]
             return Iterator("key", table)
 
     def keys(self, key: K1 | None = None) -> list[K1]:
@@ -122,9 +122,9 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             Returns an iterator of all values in the bottom-hash-table for k.
         """
         if key is None:
-            return Iterator("value", self.top_level_table)
+            return Iterator("value", self.top_level_table.array)
         else:
-            table = self.top_level_table[key][1]
+            table = self.top_level_table.array[key][1]
             return Iterator("value", table)
 
     def values(self, key: K1 | None = None) -> list[V]:
@@ -233,38 +233,23 @@ class Iterator:
     def __init__(self, condition, table):
         self.condition = condition
         self.table = table
-        self.outer_index = 0
-        self.inner_index = 0
+        self.index = 0
+
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if self.condition == "allvalue":
-            while self.outer_index < len(self.table):
-                if self.table[self.outer_index] is None:
-                    self.outer_index += 1
+        while self.index < len(self.table):
+            if self.table.array[self.index] is None:
+                self.index += 1
+            else:
+                item = self.table.array[self.index]
+                self.index += 1
+                if self.condition == "key":
+                    return item[0]
                 else:
-                    inner_table = self.table[self.outer_index][1]
-                    item = inner_table.array[self.inner_index][1]
-                    self.inner_index += 1
-                    if self.inner_index >= inner_table.table:
-                        self.outer_index += 1
-                        self.inner_index = 0
-                    if item is not None:
-                        value = item[1]
-                        return value
-        else:
-            while self.outer_index < len(self.table):
-                if self.table[self.outer_index] is None:
-                    self.outer_index += 1
-                else:
-                    item = self.table[self.outer_index]
-                    self.outer_index += 1
-                    if self.condition == "key":
-                        return item[0]
-                    else:
-                        return item[1][1]
+                    return item[1].array[1][1]
         raise StopIteration
 
 # if name
