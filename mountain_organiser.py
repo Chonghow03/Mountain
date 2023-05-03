@@ -12,11 +12,45 @@ class MountainOrganiser:
         self.mountain_lst = []
 
     def cur_position(self, mountain: Mountain) -> int:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         index = binary_search(self.mountain_lst,mountain)
         if self.mountain_lst[index] != mountain:
             raise KeyError()
         return index
 
     def add_mountains(self, mountains: list[Mountain]) -> None:
-        self.mountain_lst += copy.deepcopy(mountains)
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
+        self.mountain_lst += mountains
         self.mountain_lst = mergesort(self.mountain_lst)
