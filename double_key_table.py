@@ -38,7 +38,6 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         self.top_level_table = LinearProbeTable(sizes)
         self.top_level_table.TABLE_SIZES = self.TABLE_SIZES
         self.top_level_table.hash = lambda k: self.hash1(k)
-        self.status = "key"
 
     def hash1(self, key: K1) -> int:
         """
@@ -101,10 +100,10 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         #     table = self.top_level_table[key][1]
         #     return table.iter_keys()
         if key is None:
-            return Iterator2("key", self.top_level_table)
+            return Iterator("key", self.top_level_table.array)
         else:
-            table = self.top_level_table[key][1]
-            return Iterator2("key", table)
+            table = self.top_level_table.array[key][1]
+            return Iterator("key", table)
 
     def keys(self, key: K1 | None = None) -> list[K1]:
         """
@@ -127,10 +126,10 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         # return iter(self.values(key))
 
         if key is None:
-            return Iterator2("value", self.top_level_table)
+            return Iterator("value", self.top_level_table.array)
         else:
-            table = self.top_level_table[key][1]
-            return Iterator2("value", table)
+            table = self.top_level_table.array[key][1]
+            return Iterator("value", table)
 
     def values(self, key: K1 | None = None) -> list[V]:
         """
@@ -238,38 +237,23 @@ class Iterator2:
     def __init__(self, condition, table):
         self.condition = condition
         self.table = table
-        self.outer_index = 0
-        self.inner_index = 0
+        self.index = 0
+
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if self.condition == "allvalue":
-            while self.outer_index < len(self.table.array):
-                if self.table.array[self.outer_index] is None:
-                    self.outer_index += 1
+        while self.index < len(self.table):
+            if self.table.array[self.index] is None:
+                self.index += 1
+            else:
+                item = self.table.array[self.index]
+                self.index += 1
+                if self.condition == "key":
+                    return item[0]
                 else:
-                    inner_table = self.table.array[self.outer_index][1]
-                    item = inner_table.array[self.inner_index][1]
-                    self.inner_index += 1
-                    if self.inner_index >= inner_table.table:
-                        self.outer_index += 1
-                        self.inner_index = 0
-                    if item is not None:
-                        value = item[1]
-                        return value
-        else:
-            while self.outer_index < len(self.table.array):
-                if self.table.array[self.outer_index] is None:
-                    self.outer_index += 1
-                else:
-                    item = self.table.array[self.outer_index]
-                    self.outer_index += 1
-                    if self.condition == "key":
-                        return item[0]
-                    else:
-                        return item[1][1]
+                    return item[1].array[1][1]
         raise StopIteration
 
 # if name
