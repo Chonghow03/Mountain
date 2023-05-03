@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 from algorithms.binary_search import binary_search
 from algorithms.mergesort import mergesort
 from mountain import Mountain
@@ -17,5 +19,5 @@ class MountainOrganiser:
         return index
 
     def add_mountains(self, mountains: list[Mountain]) -> None:
-        self.mountain_lst += mountains
+        self.mountain_lst += copy.deepcopy(mountains)
         self.mountain_lst = mergesort(self.mountain_lst)

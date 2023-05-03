@@ -1,3 +1,5 @@
+import copy
+
 from algorithms.mergesort import mergesort
 from mountain import Mountain
 from mountain_organiser import MountainOrganiser
@@ -12,6 +14,7 @@ class MountainManager:
         for organiser_tuple in self.organisers:
             if mountain.difficulty_level == organiser_tuple[0]:
                 mo = organiser_tuple[1]
+                # mo.add_mountains(copy.deepcopy([mountain]))
                 mo.add_mountains([mountain])
                 return
         mo = MountainOrganiser()
@@ -38,7 +41,11 @@ class MountainManager:
                 if mountain == old:
                     organiser_tuple[1].mountain_lst.remove(mountain)
                     organiser_tuple[1].mountain_lst.append(new)
+                    print('found')
                     return
+                else:
+                    print(mountain, '!=', old)
+        print("Mountain not found")
         raise KeyError()
 
     def mountains_with_difficulty(self, diff: int):

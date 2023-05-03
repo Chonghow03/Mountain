@@ -16,7 +16,7 @@ from mountain_manager import MountainManager
 from trail import Trail, TrailSeries, TrailSplit
 from draw_trails import TrailDraw
 from mountain_organiser import MountainOrganiser
-from double_key_table import DoubleKeyTable
+from double_key_table2 import DoubleKeyTable
 from serialize import serialize, deserialize
 
 class MyWindow(arcade.Window):
