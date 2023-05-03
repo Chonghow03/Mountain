@@ -9,6 +9,23 @@ class MountainManager:
         self.MM_lst = []
 
     def add_mountain(self, mountain: Mountain):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         for MM in range(len(self.MM_lst)):
             if mountain.difficulty_level == self.MM_lst[MM][0]:
                 mountain_organiser = self.MM_lst[MM][1]
@@ -19,6 +36,23 @@ class MountainManager:
         self.MM_lst.append((mountain.difficulty_level,mountain_organiser))
 
     def remove_mountain(self, mountain: Mountain):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         for MM in range(len(self.MM_lst)):
             if mountain.difficulty_level == self.MM_lst[MM][0]:
                 mountain_organiser = self.MM_lst[MM][1]
@@ -29,6 +63,23 @@ class MountainManager:
         raise KeyError()
 
     def edit_mountain(self, old: Mountain, new: Mountain):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         for MM in range(len(self.MM_lst)):
             for mountain in MM[1].mountain_lst:
                 if mountain == old:
@@ -36,6 +87,23 @@ class MountainManager:
         raise KeyError()
 
     def mountains_with_difficulty(self, diff: int):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         for i in range(len(self.MM_lst)):
             if diff == self.MM_lst[i][0]:
                 mountain_organiser = self.MM_lst[i][1]
@@ -43,6 +111,23 @@ class MountainManager:
         return []
 
     def group_by_difficulty(self):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         MM_mountain = []
         self.MM_lst = mergesort(self.MM_lst)
         for MO in self.MM_lst:
