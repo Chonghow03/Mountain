@@ -40,7 +40,6 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         self.top_level_table = LinearProbeTable(sizes)
         self.top_level_table.TABLE_SIZES = self.TABLE_SIZES
         self.top_level_table.hash = lambda k: self.hash1(k)
-        self.status = "key"
 
     def hash1(self, key: K1) -> int:
         """
