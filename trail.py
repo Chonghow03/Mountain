@@ -15,11 +15,25 @@ if TYPE_CHECKING:
 @dataclass
 class TrailSplit:
     """
-    A split in the trail.
-       ___path_top____
-      /               \
-    -<                 >-path_follow-
-      \__path_bottom__/
+        Explain:
+        A split in the trail.
+           ___path_top____
+          /               \
+        -<                 >-path_follow-
+          \__path_bottom__/
+
+       Args:
+       -
+
+       Raises:
+       -
+
+       Returns:
+       - result:
+
+       Complexity:
+       - Worst case:
+       - Best case:
     """
 
     path_top: Trail
@@ -32,19 +46,48 @@ class TrailSplit:
         self.path_follow = path_follow
 
     def remove_branch(self) -> TrailStore:
-        """Removes the branch, should just leave the remaining following trail."""
+        """
+           Explain:
+           - Removes the branch, should just leave the remaining following trail.
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case: O(n), where n is the length of the list
+           - Best case: O(n), same as worst case since we need to iterate over all the elements in the list
+        """
+
         return self.path_follow.store
 
 
 @dataclass
 class TrailSeries:
     """
-    A mountain, followed by the rest of the trail
+       Explain:
+       - A mountain, followed by the rest of the trail
 
-    --mountain--following--
+         --mountain--following--
 
+       Args:
+       -
+
+       Raises:
+       -
+
+       Returns:
+       - result:
+
+       Complexity:
+       - Worst case: O(n), where n is the length of the list
+       - Best case: O(n), same as worst case since we need to iterate over all the elements in the list
     """
-
     mountain: Mountain
     following: Trail
 
