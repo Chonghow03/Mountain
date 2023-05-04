@@ -6,6 +6,7 @@ from algorithms.binary_search import binary_search
 from algorithms.mergesort import mergesort
 from mountain import Mountain
 
+
 class MountainOrganiser:
 
     def __init__(self) -> None:
