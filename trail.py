@@ -23,17 +23,7 @@ class TrailSplit:
           \__path_bottom__/
 
        Args:
-       -
-
-       Raises:
-       -
-
-       Returns:
-       - result:
-
-       Complexity:
-       - Worst case:
-       - Best case:
+       - path-top, path_bottom and path_follow
     """
 
     path_top: Trail
@@ -60,8 +50,8 @@ class TrailSplit:
            - result:
 
            Complexity:
-           - Worst case: O(n), where n is the length of the list
-           - Best case: O(n), same as worst case since we need to iterate over all the elements in the list
+           - Worst case:
+           - Best case:
         """
 
         return self.path_follow.store
@@ -85,8 +75,8 @@ class TrailSeries:
        - result:
 
        Complexity:
-       - Worst case: O(n), where n is the length of the list
-       - Best case: O(n), same as worst case since we need to iterate over all the elements in the list
+       - Worst case:
+       - Best case:
     """
     mountain: Mountain
     following: Trail
@@ -96,22 +86,107 @@ class TrailSeries:
         self.following = trail
 
     def remove_mountain(self) -> TrailStore:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Removes the mountain at the beginning of this series."""
         return self.following.store
 
     def add_mountain_before(self, mountain: Mountain) -> TrailStore:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Adds a mountain in series before the current one."""
         return TrailSeries(mountain, Trail(store=TrailSeries(self.mountain, self.following)))
 
     def add_empty_branch_before(self) -> TrailStore:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Adds an empty branch, where the current trailstore is now the following path."""
         return TrailSplit(Trail(None), Trail(None), Trail(TrailSeries(self.mountain, self.following)))
 
     def add_mountain_after(self, mountain: Mountain) -> TrailStore:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Adds a mountain after the current mountain, but before the following trail."""
         return TrailSeries(self.mountain, Trail(store=TrailSeries(mountain, self.following)))
 
     def add_empty_branch_after(self) -> TrailStore:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Adds an empty branch after the current mountain, but before the following trail."""
         return TrailSeries(self.mountain, Trail(TrailSplit(Trail(None), Trail(None), self.following)))
 
@@ -121,16 +196,67 @@ TrailStore = Union[TrailSplit, TrailSeries, None]
 
 @dataclass
 class Trail:
+    """
+       Explain:
+       -
+
+       Args:
+       -
+
+       Raises:
+       -
+
+       Returns:
+       - result:
+
+       Complexity:
+       - Worst case:
+       - Best case:
+    """
     store: TrailStore = None
 
     def __init__(self, store):
         self.store = store
 
     def add_mountain_before(self, mountain: Mountain) -> Trail:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Adds a mountain before everything currently in the trail."""
         return Trail(TrailSeries(mountain, Trail(None)))
 
     def add_empty_branch_before(self) -> Trail:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Adds an empty branch before everything currently in the trail."""
         return Trail(TrailSplit(Trail(None), Trail(None), Trail(None)))
 
@@ -140,6 +266,23 @@ class Trail:
     # When we exit a TrailSplit, we get path_follow by popping from the stack.
     # When the stack is empty, we're done with the trail.
     def follow_path(self, personality: WalkerPersonality) -> None:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Follow a path and add mountains according to a personality."""
         trail = self.store
         follow_paths = LinkedStack()
@@ -159,6 +302,23 @@ class Trail:
         return None
 
     def collect_all_mountains(self) -> list[Mountain]:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """Returns a list of all mountains on the trail."""
         # mountains = []
         #
@@ -199,6 +359,23 @@ class Trail:
         all_mountains = []
 
         def traverse(trail, current_path, current_k, follow_stack=None):
+            """
+               Explain:
+               -
+
+               Args:
+               -
+
+               Raises:
+               -
+
+               Returns:
+               - result:
+
+               Complexity:
+               - Worst case:
+               - Best case:
+            """
             follow_stack_copy = copy.deepcopy(follow_stack)
             current_path_copy = copy.deepcopy(current_path)
             if trail is None:
@@ -231,6 +408,23 @@ class Trail:
         all_paths = []
 
         def traverse(trail, current_path, current_k, follow_stack=None):
+            """
+               Explain:
+               -
+
+               Args:
+               -
+
+               Raises:
+               -
+
+               Returns:
+               - result:
+
+               Complexity:
+               - Worst case:
+               - Best case:
+            """
             follow_stack_copy = copy.deepcopy(follow_stack)
             current_path_copy = copy.deepcopy(current_path)
             if trail is None:

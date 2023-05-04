@@ -8,6 +8,23 @@ V = TypeVar("V")
 
 class InfiniteHashTable(Generic[K, V]):
     """
+       Explain:
+       -
+
+       Args:
+       -
+
+       Raises:
+       -
+
+       Returns:
+       - result:
+
+       Complexity:
+       - Worst case:
+       - Best case:
+    """
+    """
     Infinite Hash Table.
 
     Type Arguments:
@@ -26,11 +43,45 @@ class InfiniteHashTable(Generic[K, V]):
         self.count = 0
 
     def hash(self, key: K) -> int:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         if self.level < len(key):
             return ord(key[self.level]) % (self.TABLE_SIZE - 1)
         return self.TABLE_SIZE - 1
 
     def __getitem__(self, key: K) -> V:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """
         Get the value at a certain key
 
@@ -47,6 +98,23 @@ class InfiniteHashTable(Generic[K, V]):
             return table
 
     def __setitem__(self, key: K, value: V) -> None:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """
         Set an (key, value) pair in our hash table.
         """
@@ -89,6 +157,23 @@ class InfiniteHashTable(Generic[K, V]):
             self.count += 1
 
     def __delitem__(self, key: K) -> None:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """
         Deletes a (key, value) pair in our hash table.
 
@@ -136,12 +221,46 @@ class InfiniteHashTable(Generic[K, V]):
 
     def __len__(self):
         """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
+        """
         Returns the number of elements in the hash table.
         """
         print('count is: ', self.count)
         return self.count
 
     def __str__(self) -> str:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """
         String representation.
 
@@ -155,6 +274,23 @@ class InfiniteHashTable(Generic[K, V]):
         return str(self.array)
 
     def get_location(self, key):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """
         Get the sequence of positions required to access this key.
 
@@ -176,6 +312,23 @@ class InfiniteHashTable(Generic[K, V]):
         raise KeyError()  # not found
 
     def __contains__(self, key: K) -> bool:
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
+        """
         """
         Checks to see if the given key is in the Hash Table
 
