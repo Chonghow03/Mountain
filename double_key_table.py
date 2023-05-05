@@ -179,7 +179,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         except:
             raise KeyError(key)
         else:
-            return self.top_level_table[position[0]][1][position[1]][1]
+            return self.top_level_table[position[0]][1].array[position[1]][1]
 
     def __setitem__(self, key: tuple[K1, K2], data: V) -> None:
         """
