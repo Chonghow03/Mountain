@@ -33,21 +33,8 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
     def __init__(self, sizes: list | None = None, internal_sizes: list | None = None) -> None:
         """
-          Explain:
-          -
-
-          Args:
-          -
-
-          Raises:
-          -
-
-          Returns:
-          - result:
-
-          Complexity:
-          - Worst case:
-          - Best case:
+        :complexity best: O(1)
+        :complexity worst: O(1)
         """
         if sizes is not None:
             self.TABLE_SIZES = sizes
@@ -198,16 +185,24 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         :complexity worst: when key is none O(N*M) where N is the number of items in the table and M is
         the (average) number of items in the inner table.
         """
-
         values = []
-        if key is None:
-            tables = [t[1] for t in self.top_level_table if t is not None]
-        else:
-            tables = [self.top_level_table[self._get_table_index(key)][1]]
-        for table in tables:
-            for item in table.array:
+
+        def add_values(tab):
+            for item in tab.array:
                 if item is not None:
                     values.append(item[1])
+
+        if key is None:
+            for t in self.top_level_table:
+                if t is None:
+                    continue
+                table = t[1]
+                add_values(table)
+        else:
+            tables = [self.top_level_table[self._get_table_index(key)][1]]
+            for table in tables:
+                add_values(table)
+
         return values
 
     def __contains__(self, key: tuple[K1, K2]) -> bool:

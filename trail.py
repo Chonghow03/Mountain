@@ -260,11 +260,6 @@ class Trail:
         """Adds an empty branch before everything currently in the trail."""
         return Trail(TrailSplit(Trail(None), Trail(None), Trail(None)))
 
-    # TrailSplit has a path_follow, which we need to return to when we're done with the current path.
-    # However, we can go into nested TrailSplits, so we need to keep track of all the paths we need to return to.
-    # When we enter a TrailSplit, we push the path_follow onto a stack.
-    # When we exit a TrailSplit, we get path_follow by popping from the stack.
-    # When the stack is empty, we're done with the trail.
     def follow_path(self, personality: WalkerPersonality) -> None:
         """
         The function allows a predefined walker to follow a path,
@@ -284,13 +279,15 @@ class Trail:
                 - check if trail is empty - O(1)
                 - return None - O(1)
 
-       - Worst case: when each encounter is a TrailSplit
+       - Worst case: O() when each encounter is a TrailSplit
                 - create LinkedStack - O(1)
                 - check if trail is empty - O(1)
+                    - if empty, check if stack is empty and attempt to set trail to stack.pop() - O(1)
                 - check if trail is a TrailSplit - O(1)
                 - push path_follow onto stack - O(1)
                 - call personality.select_branch - O(1)
                 - step into TrailSplit - O(1)
+                - repeat until stack is empty - O(n)
 
         """
         """Follow a path and add mountains according to a personality."""
@@ -308,7 +305,7 @@ class Trail:
             elif isinstance(trail, TrailSplit):
                 follow_paths.push(trail.path_follow.store)
                 trail = trail.path_top.store if personality.select_branch(trail.path_top, trail.path_bottom) \
-                    else trail.path_bottom.store   # select trail based on personality
+                    else trail.path_bottom.store  # select trail based on personality
         return None
 
     def collect_all_mountains(self) -> list[Mountain]:
@@ -407,7 +404,6 @@ class Trail:
         traverse(self.store, [], 0, LinkedStack())
         return all_mountains
 
-
     def length_k_paths(self, k) -> list[list[Mountain]]:  # Input to this should not exceed k > 50, at most 5 branches.
         """
         Returns a list of all paths of containing exactly k mountains.
@@ -453,6 +449,3 @@ class Trail:
 
         traverse(self.store, [], 0, LinkedStack())
         return all_paths
-
-
-
