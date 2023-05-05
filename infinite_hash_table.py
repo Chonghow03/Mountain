@@ -294,21 +294,30 @@ class InfiniteHashTable(Generic[K, V]):
 
     def get_location(self, key):
         """
-        Get the sequence of positions required to access this key.
+           Explain:
+           - Get the sequence of positions required to access this key.
 
-        :raises KeyError: when the key doesn't exist.
+           Args:
+           - key is a string
 
-        :complexity best: O(Comp(K)) when the key is the first element in the table, and the table does not contain
-        any extended tables.
-                    - get_location: O(Comp(K))
-                    - step into table: O(1), when only step into top level table
-                    - check if key is equal: O(Comp(K))
+           Return:
+           - path which is a list of index of key given.
 
-        :complexity worst: O(M+Comp(K)) when the element is at the deepest level of the table, where M is the length of the key.
-                    - get_location: O(1)
-                    - step into table M-1 times: O(M)
-                    - check if key is equal: O(Comp(K))
+           Raises:
+           - KeyError: when the key doesn't exist.
 
+           Complexity:
+           - Worst Case: O(M+Comp(K))
+                        - when the element is at the deepest level of the table, where M is the length of the key.
+                        - get_location: O(1)
+                        - step into table M-1 times: O(M)
+                        - check if key is equal: O(Comp(K))
+
+           - Best Case: O(Comp(K))
+                        - when the key is the first element in the table, and the table does not contain any extended tables.
+                        - get_location: O(Comp(K))
+                        - step into table: O(1), when only step into top level table
+                        - check if key is equal: O(Comp(K))
         """
         pos = self.hash(key)
         kv_pair = self.array[pos]

@@ -495,16 +495,86 @@ class Iterator:
         VALUE = 2
 
     def __init__(self, table_array, scope: Scope, i_type: IType):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Returns:
+           - result:
+
+
+           Complexity:
+           - Worst case:
+
+           - Best case:
+        """
         self.scope = scope
         self.type = i_type
         self.table_array = table_array
         self.i = 0
 
     def __iter__(self):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+
+           - Best case:
+        """
         return self
 
     def __next__(self):
+        """
+           Explain:
+           -
+
+           Args:
+           -
+
+           Raises:
+           -
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+
+           - Best case:
+        """
         def get_item(table_array, i):
+            """
+               Explain:
+               -
+
+               Args:
+               -
+
+               Raises:
+               -
+
+               Returns:
+               - result:
+
+               Complexity:
+               - Worst case:
+
+               - Best case: 
+            """
             item = table_array[i]
             if self.type is self.IType.KEY:
                 return item[0]

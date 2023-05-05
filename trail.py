@@ -255,32 +255,31 @@ class Trail:
     # When the stack is empty, we're done with the trail.
     def follow_path(self, personality: WalkerPersonality) -> None:
         """
-        The function allows a predefined walker to follow a path,
-        adding mountains according to its personality.
+           Explain:
+           -The function allows a predefined walker to follow a path, adding mountains according to its personality.
 
-        At each TrailSplit, we call the personality's select_branch function to determine which path to follow.
-        The personality is passed the top and bottom paths, and it returns True if we should follow the top path,
-        or False if we should follow the bottom path.
-        Before we step into a TrailSplit, we push the path_follow onto a stack, so we can return to it later.
-        When we exit a TrailSplit, we pop from the stack to get the last path_follow.
+           - At each TrailSplit, we call the personality's select_branch function to determine which path to follow.
+           - The personality is passed the top and bottom paths, and it returns True if we should follow the top path,
+             or False if we should follow the bottom path.
+           - Before we step into a TrailSplit, we push the path_follow onto a stack, so we can return to it later.
+           - When we exit a TrailSplit, we pop from the stack to get the last path_follow.
 
-        Args:
-        - personality: walker with a predefined personality
+           Args:
+           - personality: walker with a predefined personality
 
-       - Best case: O(1) when the trail is empty
-                - create LinkedStack - O(1)
-                - check if trail is empty - O(1)
-                - return None - O(1)
+           Complexity:
+           - Best case: O(1) when the trail is empty
+                        - create LinkedStack - O(1)
+                        - check if trail is empty - O(1)
+                        - return None - O(1)
 
-       - Worst case: when each encounter is a TrailSplit
-                - create LinkedStack - O(1)
-                - check if trail is empty - O(1)
-                - check if trail is a TrailSplit - O(1)
-                - push path_follow onto stack - O(1)
-                - call personality.select_branch - O(1)
-                - step into TrailSplit - O(1)
-
-
+           - Worst case: when each encounter is a TrailSplit
+                        - create LinkedStack - O(1)
+                        - check if trail is empty - O(1)
+                        - check if trail is a TrailSplit - O(1)
+                        - push path_follow onto stack - O(1)
+                        - call personality.select_branch - O(1)
+                        - step into TrailSplit - O(1)
         """
 
         trail = self.store
@@ -404,10 +403,10 @@ class Trail:
              Paths are unique if they take a different branch, even if this results in the same set of mountains.
 
            Args:
-           -
+           - k, which is an integer
 
            Raises:
-           -
+           - None
 
            Returns:
            - result:
@@ -424,10 +423,13 @@ class Trail:
                -
 
                Args:
-               -
+               - trail
+               - current_path
+               - current_k
+               - follow_stack
 
                Raises:
-               -
+               - None
 
                Returns:
                - result:
