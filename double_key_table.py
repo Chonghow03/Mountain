@@ -33,21 +33,14 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
     def __init__(self, sizes: list | None = None, internal_sizes: list | None = None) -> None:
         """
-          Explain:
-          -
-
-          Args:
-          -
-
-          Raises:
-          -
-
-          Returns:
-          - result:
+          Class variable:
+          - sizes which is a list
+          - internal_sizes which is a list
 
           Complexity:
-          - Worst case:
-          - Best case:
+          - Worst case: O(1), all if statement and assignment are O(1) (constant time)
+
+          - Best case: O(1), all if statement and assignment are O(1) (constant time)
         """
         if sizes is not None:
             self.TABLE_SIZES = sizes
@@ -363,12 +356,22 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
     def __delitem__(self, key: tuple[K1, K2]) -> None:
         """
-        Deletes a (key, value) pair in our hash table.
+           Explain:
+           - Deletes a (key, value) pair in our hash table.
 
-        :raises KeyError: when the key doesn't exist.
+           Args:
+           - key is a tuple of key1 and key2
 
-        :complexity best: O()
-        :complexity worst: O()
+           Returns:
+           - None
+
+           Raises:
+           - KeyError: when the key doesn't exist.
+
+           Complexity:
+           - Worst Case: O()
+
+           - Best Case: O()
         """
         top_pos, bottom_pos = self._linear_probe(key[0], key[1], False)
 
@@ -402,12 +405,18 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            - None
 
            Complexity:
-           - Worst Case: O(N* linear_probing()) Worst case for linear probing.
-                        Where N is len(self)
+           - Worst Case: O(N * _linear_probe()) = O(N * (O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)))
+                         - Let N be the size of top level table
+                         - The for loop iterate all the item in top level table, thus O(N).
+                         - The worst case time complexity of _linear_probe() is
+                           O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K))).
+                         - The worst case of setitem of arrayR is O(1).
+                         - All assignments, if statement, numerical operation and return statement are O(1).
 
-           - Best Case: O(N * linear_probing()) No probing.
+           - Best Case: O(1)
+                        - When the size_index is equal to the length of TABLE_SIZES
+                        - All assignments, if statement, numerical operation and return statement are O(1).
         """
-
         old_array = self.top_level_table
         self.size_index += 1
         if self.size_index == len(self.TABLE_SIZES):
@@ -421,27 +430,52 @@ class DoubleKeyTable(Generic[K1, K2, V]):
     @property
     def table_size(self) -> int:
         """
-        Return the current size of the table (different from the length)
+           Explain:
+           - Return the current size of the table (different from the length)
 
-        :complexity best: O(1)
-        :complexity worst: O(1)
+           Args:
+           - None
+
+           Return:
+           - An integer which is the length of top level table
+
+           Complexity:
+           - Worst Case: O(1), return statement
+
+           - Best Case: O(1), return statement
         """
         return len(self.top_level_table)
 
     def __len__(self) -> int:
         """
-        Returns number of elements in the hash table
+           Explain:
+           - Returns number of elements in the hash table
 
-        :complexity best: O(1)
-        :complexity worst: O(1)
+           Return:
+           - An integer which is the count class variable.(how many item in the table)
+
+           Complexity:
+           - Worst Case: O(1), return statement
+
+           - Best Case: O(1), return statement
         """
         return self.count
 
     def __str__(self) -> str:
         """
-        String representation.
+           Explain:
+           - String representation.
+           - Not required but may be a good testing tool.
 
-        Not required but may be a good testing tool.
+           Return:
+           - String of result
+
+           Complexity:
+           - Worst case: O(N), where N is the size of top level table (for loop).
+                        - All assignments, if statement, numerical operation and return statement are O(1).
+
+           - Best case: O(1), when nothing in top level table.
+                        - All assignments, if statement, numerical operation and return statement are O(1).
         """
         result = ""
         for item in self.top_level_table:
