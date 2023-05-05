@@ -22,14 +22,23 @@ class InfiniteHashTable(Generic[K, V]):
 
     def __init__(self, level=0) -> None:
         """
-        Initialise the Hash Table, and set the level.
+           Explain:
+           - Initialise the Hash Table, and set the level.
 
+           Args:
+           - level, default is 0.
 
-        :complexity best: O(1)
-        :complexity worst: O(1)
-                - array: O(1)
-                - set level: O(1)
-                - set count: O(1)
+           Class variable:
+           - array: ArrayR instance
+           - level: integer
+           - count: integer, set to 0 in first
+
+           Complexity:
+           - Worst Case: O(1)
+           - Best Case: O(1)
+                - Assignment of array: O(1)
+                - Assignment of level: O(1)
+                - Assignment of count: O(1)
         """
 
         self.array: ArrayR[tuple[K, V]] = ArrayR(self.TABLE_SIZE)
@@ -38,8 +47,11 @@ class InfiniteHashTable(Generic[K, V]):
 
     def hash(self, key: K) -> int:
         """
-        Initialise the Hash Table, and set the level.
+           Explain:
+           - Initialise the Hash Table, and set the level.
 
+           Args:
+           - key is a string
 
         :complexity: O(1) since we are only hashing one character
         best case is equal to worst case.
@@ -50,19 +62,31 @@ class InfiniteHashTable(Generic[K, V]):
 
     def __getitem__(self, key: K) -> V:
         """
-        Get the value at a certain key
+           Explain:
+           - Get the value at a certain key
 
-        :raises KeyError: when the key doesn't exist.
+           Args:
+           - key is a string
 
-        :complexity best: O(Comp(K)) when the position is a list with one element; that is; the element is in first table.
-                    - get_location: O(Comp(K))
-                    - get_table (for loop one time): O(1)
-                    - get value: O(1)
-        :complexity worst: O(M+Comp(K)) when the element is at the deepest level of the table, where M is the length of the key.
+           Return:
+           - table
+
+           Raises:
+           - KeyError: when the key doesn't exist.
+
+           Complexity:
+           - Worst Case: O(M+Comp(K))
+                    - When the element is at the deepest level of the table, where M is the length of the key.
                     - get_location: O(Comp(K))
                     - get_table (for loop M-1 times): O(1)
                     - get value: O(1)
-        This occurs when there exists a key with length M-1 in the table, causing M-1 tables to be traversed.
+                    - This occurs when there exists a key with length M-1 in the table, causing M-1 tables to be traversed.
+
+           - Best Case: O(Comp(K))
+                    - When the position is a list with one element; that is; the element is in first table.
+                    - get_location: O(Comp(K))
+                    - get_table (for loop one time): O(1)
+                    - get value: O(1)
         """
         try:
             pos = self.get_location(key)  # O(1)
@@ -76,7 +100,7 @@ class InfiniteHashTable(Generic[K, V]):
 
     def __setitem__(self, key: K, value: V) -> None:
         """
-        Set an (key, value) pair in our hash table.
+        Set a (key, value) pair in our hash table.
         We first define a helper function step_into_table that when called, sets the parent, pos, kv_pair, and table_level
         variables to the current table, the position of the key in the table, the key-value pair at that position,
         and the level of the table respectively.
@@ -239,41 +263,61 @@ class InfiniteHashTable(Generic[K, V]):
 
     def __len__(self):
         """
-        Returns the number of elements in the hash table.
+           Explain:
+           - Returns the number of elements in the hash table.
 
-        :complexity best: O(1)
-        :complexity worst: O(1)
+           Return:
+           - self.count class variable which is the number of item in the table.
+
+           Complexity:
+           - Worst Case: O(1), return statement
+
+           - Best Case: O(1), return statement
         """
         return self.count
 
     def __str__(self) -> str:
         """
-        String representation.
+           Explain:
+           - String representation.
+           - Not required but may be a good testing tool.
 
-        Not required but may be a good testing tool.
+           Return:
+           - the string of self.array
 
-        :complexity best: O(1)
-        :complexity worst: O(1)
+           Complexity:
+           - Worst Case: O(1), return statement
+
+           - Best Case: O(1), return statement
         """
         return str(self.array)
 
     def get_location(self, key):
         """
-        Get the sequence of positions required to access this key.
+           Explain:
+           - Get the sequence of positions required to access this key.
 
-        :raises KeyError: when the key doesn't exist.
+           Args:
+           - key is a string
 
-        :complexity best: O(Comp(K)) when the key is the first element in the table, and the table does not contain
-        any extended tables.
-                    - get_location: O(Comp(K))
-                    - step into table: O(1), when only step into top level table
-                    - check if key is equal: O(Comp(K))
+           Return:
+           - path which is a list of index of key given.
 
-        :complexity worst: O(M+Comp(K)) when the element is at the deepest level of the table, where M is the length of the key.
-                    - get_location: O(1)
-                    - step into table M-1 times: O(M)
-                    - check if key is equal: O(Comp(K))
+           Raises:
+           - KeyError: when the key doesn't exist.
 
+           Complexity:
+           - Worst Case: O(M+Comp(K))
+                        - when the element is at the deepest level of the table, where M is the length of the key.
+                        - get_location: O(1)
+                        - step into table M-1 times: O(M)
+                        - check if key is equal: O(Comp(K))
+
+           - Best Case: O(Comp(K))
+                        - when the key is the first element in the table, and the table does not contain any extended tables.
+                        - get_location: O(Comp(K))
+                        - step into table: O(1), when only step into top level table
+                        - check if key is equal: O(Comp(K))
         """
         pos = self.hash(key)
         kv_pair = self.array[pos]
