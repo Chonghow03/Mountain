@@ -22,8 +22,10 @@ class TrailSplit:
         -<                 >-path_follow-
           \__path_bottom__/
 
-       Args:
-       - path-top, path_bottom and path_follow
+       Class variable:
+       - path-top, which is a Trail instance with a argument TrailStore
+       - path_bottom, which is a Trail instance with a argument TrailStore
+       - path_follow, which is a Trail instance with a argument TrailStore
     """
 
     path_top: Trail
@@ -41,17 +43,17 @@ class TrailSplit:
            - Removes the branch, should just leave the remaining following trail.
 
            Args:
-           -
+           - None
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: A TrailStore of path follow
 
            Complexity:
-           - Worst case:
-           - Best case:
+           - Worst case: O(1), return statement
+           - Best case: O(1), return statement
         """
 
         return self.path_follow.store
@@ -62,21 +64,11 @@ class TrailSeries:
     """
        Explain:
        - A mountain, followed by the rest of the trail
-
          --mountain--following--
 
-       Args:
-       -
-
-       Raises:
-       -
-
-       Returns:
-       - result:
-
-       Complexity:
-       - Worst case:
-       - Best case:
+       Class variable:
+       -mountain, which is a Mountain instance that involve three arguments (String name, Integer difficult_level, Integer length).
+       -following, which is a Trail instance with the argument TrailStore.
     """
     mountain: Mountain
     following: Trail
@@ -88,106 +80,111 @@ class TrailSeries:
     def remove_mountain(self) -> TrailStore:
         """
            Explain:
-           -
+           - Removes the mountain at the beginning of this series.
 
            Args:
-           -
+           - None
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: A TrailStore of following trail
 
            Complexity:
-           - Worst case:
-           - Best case:
+           - Worst case: O(1), return statement
+           - Best case: O(1), return statement
         """
-        """Removes the mountain at the beginning of this series."""
         return self.following.store
 
     def add_mountain_before(self, mountain: Mountain) -> TrailStore:
         """
            Explain:
-           -
+           - Adds a mountain in series before the current one.
 
            Args:
-           -
+           - mountain, which is a Mountain instance that involve three arguments (String name, Integer difficult_level, Integer length).
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: A TrailSeries instance with two arguments (mountain and Trail instance).
 
            Complexity:
-           - Worst case:
-           - Best case:
+           - Worst case: O(1), return statement
+           - Best case: O(1), return statement
         """
-        """Adds a mountain in series before the current one."""
         return TrailSeries(mountain, Trail(store=TrailSeries(self.mountain, self.following)))
 
     def add_empty_branch_before(self) -> TrailStore:
         """
            Explain:
-           -
+           - Adds an empty branch, where the current trailstore is now the following path.
 
            Args:
-           -
+           - None
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: A TrailSplit with three arguments (path_top, path_bottom, path_follow)
+           - Three arguments:
+           -   path_top: Trail with TrailStore is None
+           -   path_bottom: Trail with TrailStore is None
+           -   path_follow: TrailSeries with self.mountain and self.following
 
            Complexity:
-           - Worst case:
-           - Best case:
+           - Worst case: O(1), return statement
+           - Best case: O(1), return statement
         """
-        """Adds an empty branch, where the current trailstore is now the following path."""
         return TrailSplit(Trail(None), Trail(None), Trail(TrailSeries(self.mountain, self.following)))
 
     def add_mountain_after(self, mountain: Mountain) -> TrailStore:
         """
            Explain:
-           -
+           - Adds a mountain after the current mountain, but before the following trail.
 
            Args:
-           -
+           - mountain, which is a Mountain instance that involve three arguments (String name, Integer difficult_level, Integer length).
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: A TrailSeries with self.mountain and following is a Trail instance.
+           - The Trail instance with TrailStore is TrailSeries (mountain that provided and following is self.following)
 
            Complexity:
-           - Worst case:
-           - Best case:
+           - Worst case: O(1), return statement
+           - Best case: O(1), return statement
         """
-        """Adds a mountain after the current mountain, but before the following trail."""
         return TrailSeries(self.mountain, Trail(store=TrailSeries(mountain, self.following)))
 
     def add_empty_branch_after(self) -> TrailStore:
         """
            Explain:
-           -
+           - Adds an empty branch after the current mountain, but before the following trail."
 
            Args:
-           -
+           - None
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: A TrailSeries with self.mountain and following is a Trail instance.
+           - The Trail instance with TrailStore is TrailSplit.
+           - The TrailSplit with three arguments:
+           -   path_top is Trail with TrailStore is None.
+           -   path_bottom is Trail with TrailStore is None.
+           -   path_follow is self.following.
 
            Complexity:
-           - Worst case:
-           - Best case:
+           - Worst case: O(1), return statement
+           - Best case: O(1), return statement
         """
-        """Adds an empty branch after the current mountain, but before the following trail."""
         return TrailSeries(self.mountain, Trail(TrailSplit(Trail(None), Trail(None), self.following)))
 
 
@@ -197,21 +194,9 @@ TrailStore = Union[TrailSplit, TrailSeries, None]
 @dataclass
 class Trail:
     """
-       Explain:
-       -
+       Class variable:
+       - store: TrailStore is the union of TrailSplit, TrailSeries and None.
 
-       Args:
-       -
-
-       Raises:
-       -
-
-       Returns:
-       - result:
-
-       Complexity:
-       - Worst case:
-       - Best case:
     """
     store: TrailStore = None
 
@@ -221,79 +206,79 @@ class Trail:
     def add_mountain_before(self, mountain: Mountain) -> Trail:
         """
            Explain:
-           -
+           - Adds a mountain before everything currently in the trail.
 
            Args:
-           -
+           - mountain, which is a Mountain instance that involve three arguments (String name, Integer difficult_level, Integer length).
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: A Trail instance with TrailStore is TrailSeries.
+           - TrailSeries with two arguements mountain that provided, and following is Trail instance with TrailStore is None.
 
            Complexity:
-           - Worst case:
-           - Best case:
+           - Worst case: O(1), return statement
+           - Best case: O(1), return statement
         """
-        """Adds a mountain before everything currently in the trail."""
         return Trail(TrailSeries(mountain, Trail(None)))
 
     def add_empty_branch_before(self) -> Trail:
         """
            Explain:
-           -
+           - Adds an empty branch before everything currently in the trail.
 
            Args:
-           -
+           - None
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: A Trail instance with TrailStore is TrailSplit.
+           - The TrailSplit with three arguments,
+           -   path_top is Trail with TrailStore is None.
+           -   path_bottom is Trail with TrailStore is None.
+           -   path_follow is Trail with TrailStore is None.
 
            Complexity:
-           - Worst case:
-           - Best case:
+           - Worst case: O(1), return statement
+           - Best case: O(1), return statement
         """
-        """Adds an empty branch before everything currently in the trail."""
         return Trail(TrailSplit(Trail(None), Trail(None), Trail(None)))
 
     def follow_path(self, personality: WalkerPersonality) -> None:
         """
-        The function allows a predefined walker to follow a path,
-        adding mountains according to its personality.
+           Explain:
+           -The function allows a predefined walker to follow a path, adding mountains according to its personality.
 
-        At each TrailSplit, we call the personality's select_branch function to determine which path to follow.
-        The personality is passed the top and bottom paths, and it returns True if we should follow the top path,
-        or False if we should follow the bottom path.
-        Before we step into a TrailSplit, we push the path_follow onto a stack, so we can return to it later.
-        When we exit a TrailSplit, we pop from the stack to get the last path_follow.
+           - At each TrailSplit, we call the personality's select_branch function to determine which path to follow.
+           - The personality is passed the top and bottom paths, and it returns True if we should follow the top path,
+             or False if we should follow the bottom path.
+           - Before we step into a TrailSplit, we push the path_follow onto a stack, so we can return to it later.
+           - When we exit a TrailSplit, we pop from the stack to get the last path_follow.
 
-        Args:
-        - personality: walker with a predefined personality
+           Args:
+           - personality: walker with a predefined personality
 
-       - Best case: O(1) when the trail is empty
-                - create LinkedStack - O(1)
-                - check if trail is empty - O(1)
-                - return None - O(1)
+           Complexity:
+           - Best case: O(1) when the trail is empty
+                        - create LinkedStack - O(1)
+                        - check if trail is empty - O(1)
+                        - return None - O(1)
 
-       - Worst case: O() when each encounter is a TrailSplit
-                - create LinkedStack - O(1)
-                - check if trail is empty - O(1)
-                    - if empty, check if stack is empty and attempt to set trail to stack.pop() - O(1)
-                - check if trail is a TrailSplit - O(1)
-                - push path_follow onto stack - O(1)
-                - call personality.select_branch - O(1)
-                - step into TrailSplit - O(1)
-                - repeat until stack is empty - O(n)
-
+           - Worst case: when each encounter is a TrailSplit
+                        - create LinkedStack - O(1)
+                        - check if trail is empty - O(1)
+                        - check if trail is a TrailSplit - O(1)
+                        - push path_follow onto stack - O(1)
+                        - call personality.select_branch - O(1)
+                        - step into TrailSplit - O(1)
         """
-        """Follow a path and add mountains according to a personality."""
+
         trail = self.store
         follow_paths = LinkedStack()
-
         while True:
             if trail is None:
                 if follow_paths.is_empty():  # if
@@ -311,22 +296,22 @@ class Trail:
     def collect_all_mountains(self) -> list[Mountain]:
         """
            Explain:
-           -
+           - Returns a list of all mountains on the trail.
 
            Args:
-           -
+           - None
 
            Raises:
-           -
+           - None
 
            Returns:
-           - result:
+           - result: list of all mountains created
 
            Complexity:
            - Worst case:
            - Best case:
         """
-        """Returns a list of all mountains on the trail."""
+
         # mountains = []
         #
         # path = self.store
@@ -406,10 +391,23 @@ class Trail:
 
     def length_k_paths(self, k) -> list[list[Mountain]]:  # Input to this should not exceed k > 50, at most 5 branches.
         """
-        Returns a list of all paths of containing exactly k mountains.
-        Paths are represented as lists of mountains.
+           Explain:
+           - Returns a list of all paths of containing exactly k mountains.
+             Paths are represented as lists of mountains.
+             Paths are unique if they take a different branch, even if this results in the same set of mountains.
 
-        Paths are unique if they take a different branch, even if this results in the same set of mountains.
+           Args:
+           - k, which is an integer
+
+           Raises:
+           - None
+
+           Returns:
+           - result:
+
+           Complexity:
+           - Worst case:
+           - Best case:
         """
         all_paths = []
 
@@ -419,10 +417,13 @@ class Trail:
                -
 
                Args:
-               -
+               - trail
+               - current_path
+               - current_k
+               - follow_stack
 
                Raises:
-               -
+               - None
 
                Returns:
                - result:
