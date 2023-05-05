@@ -8,23 +8,6 @@ V = TypeVar("V")
 
 class InfiniteHashTable(Generic[K, V]):
     """
-       Explain:
-       -
-
-       Args:
-       -
-
-       Raises:
-       -
-
-       Returns:
-       - result:
-
-       Complexity:
-       - Worst case:
-       - Best case:
-    """
-    """
     Infinite Hash Table.
 
     Type Arguments:
@@ -38,27 +21,25 @@ class InfiniteHashTable(Generic[K, V]):
     TABLE_SIZE = 27
 
     def __init__(self, level=0) -> None:
+        """
+        Initialise the Hash Table, and set the level.
+
+
+        :complexity best: O(1)
+        :complexity worst: O(1)
+        """
+
         self.array: ArrayR[tuple[K, V]] = ArrayR(self.TABLE_SIZE)
         self.level = level
         self.count = 0
 
     def hash(self, key: K) -> int:
         """
-           Explain:
-           -
+        Initialise the Hash Table, and set the level.
 
-           Args:
-           -
 
-           Raises:
-           -
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-           - Best case:
+        :complexity: O(1) since we are only hashing one character
+        best case is equal to worst case.
         """
         if self.level < len(key):
             return ord(key[self.level]) % (self.TABLE_SIZE - 1)
@@ -66,29 +47,15 @@ class InfiniteHashTable(Generic[K, V]):
 
     def __getitem__(self, key: K) -> V:
         """
-           Explain:
-           -
-
-           Args:
-           -
-
-           Raises:
-           -
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-           - Best case:
-        """
-        """
         Get the value at a certain key
 
         :raises KeyError: when the key doesn't exist.
+
+        :complexity best: O(1) when the position is a list with one element; that is; the element is in first table.
+        :complexity worst: O(1) when the element is at the deepest level of the table.
         """
         try:
-            pos = self.get_location(key)
+            pos = self.get_location(key)  # O(1)
         except KeyError:
             raise KeyError('Key not found')
         else:
@@ -158,23 +125,6 @@ class InfiniteHashTable(Generic[K, V]):
 
     def __delitem__(self, key: K) -> None:
         """
-           Explain:
-           -
-
-           Args:
-           -
-
-           Raises:
-           -
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-           - Best case:
-        """
-        """
         Deletes a (key, value) pair in our hash table.
 
         :raises KeyError: when the key doesn't exist.
@@ -221,80 +171,36 @@ class InfiniteHashTable(Generic[K, V]):
 
     def __len__(self):
         """
-           Explain:
-           -
-
-           Args:
-           -
-
-           Raises:
-           -
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-           - Best case:
-        """
-        """
         Returns the number of elements in the hash table.
+
+        :complexity best: O(1)
+        :complexity worst: O(1)
         """
-        print('count is: ', self.count)
         return self.count
 
     def __str__(self) -> str:
         """
-           Explain:
-           -
-
-           Args:
-           -
-
-           Raises:
-           -
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-           - Best case:
-        """
-        """
         String representation.
 
         Not required but may be a good testing tool.
+
+        :complexity best: O(1)
+        :complexity worst: O(1)
         """
-        # for i, t in enumerate(ih.array):
-        #     if t is not None:
-        #         print(i, t)
-        #
-        # values = []
         return str(self.array)
 
     def get_location(self, key):
         """
-           Explain:
-           -
-
-           Args:
-           -
-
-           Raises:
-           -
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-           - Best case:
-        """
-        """
         Get the sequence of positions required to access this key.
 
         :raises KeyError: when the key doesn't exist.
+
+        :complexity best: O(1) when the key is the first element in the table, and the table does not contain
+        any extended tables.
+        :complexity worst: O(1)
+
+        both best and worst case are O(1) because the number of steps required are all constant, and do not
+        depend on the size of the table.
         """
         pos = self.hash(key)
         kv_pair = self.array[pos]
@@ -312,23 +218,6 @@ class InfiniteHashTable(Generic[K, V]):
         raise KeyError()  # not found
 
     def __contains__(self, key: K) -> bool:
-        """
-           Explain:
-           -
-
-           Args:
-           -
-
-           Raises:
-           -
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-           - Best case:
-        """
         """
         Checks to see if the given key is in the Hash Table
 
