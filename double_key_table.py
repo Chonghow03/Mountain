@@ -33,13 +33,16 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
     def __init__(self, sizes: list | None = None, internal_sizes: list | None = None) -> None:
         """
-          Class variable:
+          Arg:
           - sizes which is a list
           - internal_sizes which is a list
 
+          Explain:
+            - Initialise the Hash Table, setting the top level table as an ArrayR of size 5
+            (first element in TABLE_SIZES).
+
           Complexity:
           - Worst case: O(1), all if statement and assignment are O(1) (constant time)
-
           - Best case: O(1), all if statement and assignment are O(1) (constant time)
         """
         if sizes is not None:
@@ -100,7 +103,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
            Complexity:
            - Worst Case: O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)))
-                        - Let N is the table size of the top level table, M is the table size of the bottom level table.
+                        - Let N be the table size of the top level table, M the table size of the bottom level table.
                         - The time complexity of hash1 is O(len(key1)) and hash2 is O(len(key2)).
                         - The for loop runs depend on table_size, thus the for loop runs N time (O(N)).
                         - Within the for loop, comp(K) is the complexity of comparing two keys.
@@ -112,7 +115,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
                         - The time complexity of hash1 is O(len(key1)).
                         - When enter the condition of the key of the first obtained is equal to key1,
                         - the best case of _linear_probe() function in hash_table is O(hash(key2)).
-                        - All the assignments,return statement, if statements are O(1).
+                        - All the assignments, return statement, if statements are O(1).
         """
         top_pos = self.hash1(key1)
         for _ in range(self.table_size):
@@ -139,8 +142,8 @@ class DoubleKeyTable(Generic[K1, K2, V]):
     def _get_table_index(self, key):
         """
            Explain:
-           -Helper function to get the index of the inner table that contains the key using linear probing,
-            with is_insert=True.
+            -Helper function to get the index of the inner table that contains the key using linear probing,
+             with is_insert=True.
 
             -This works because rehashing for both top and inner tables are performed automatically,so the inner table
              is always non-full; implying we can reuse linear probing to find the correct index for top-level key by
@@ -175,10 +178,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            Returns:
            - result: An Iterator instance of Key1 type or Key2 type.
 
-           Complexity:
-           - Worst Case: O()
-
-           - Best Case: O()
+           Complexity: O(1), because it only returns an Iterator instance.
         """
         if key is None:
             return Iterator(self.top_level_table, Iterator.Scope.SINGLE, Iterator.IType.KEY)
@@ -199,14 +199,14 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
            Complexity:
            - Worst Case: O(_linear_probe() * M) =O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)) * M)
-                        - Let N is the table size of the top level table, M is the table size of the bottom level table.
+                        - Let N be the table size of the top level table, M the table size of the bottom level table.
                         - When key is not None, since calling get_table_index() is worst case of O(linear_probing()),
                         - and then iterating through the bottom level table is O(M).
-                        - All if statements, assignments  return statement are O(1).
+                        - All if, assignment, and return statements are O(1).
 
            - Best Case: O(N)
                        - When key is None, where N is table count.
-                       - All if statements, assignments return statement are O(1).
+                       - All if, assignment, and return statements are O(1).
         """
         keys = []
         if key is None:
@@ -230,10 +230,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            Returns:
            - result: An Iterator instance of value type.
 
-           Complexity:
-           - Worst Case: O()
-
-           - Best Case: O()
+           Complexity: O(1), since it is just returning an iterator instance.
         """
         if key is None:
             return Iterator(self.top_level_table, Iterator.Scope.ALL, Iterator.IType.VALUE)
@@ -258,19 +255,27 @@ class DoubleKeyTable(Generic[K1, K2, V]):
                         - and M is the (average) number of items in the bottom level table.
 
            - Best Case: O(hash1(key) * hash2(key) * N) when key is the first element of the first table, and that
-        second position of the second table is empty (best case for linear probing).
-        N is the number of items in the table.
+                    second position of the second table is empty (best case for linear probing).
+                    N is the number of items in the table.
         """
-
         values = []
-        if key is None:
-            tables = [t[1] for t in self.top_level_table if t is not None]
-        else:
-            tables = [self.top_level_table[self._get_table_index(key)][1]]
-        for table in tables:
-            for item in table.array:
+
+        def add_values(tab):
+            for item in tab.array:
                 if item is not None:
                     values.append(item[1])
+
+        if key is None:
+            for t in self.top_level_table:
+                if t is None:
+                    continue
+                table = t[1]
+                add_values(table)
+        else:
+            tables = [self.top_level_table[self._get_table_index(key)][1]]
+            for table in tables:
+                add_values(table)
+
         return values
 
     def __contains__(self, key: tuple[K1, K2]) -> bool:
@@ -302,7 +307,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
           Complexity:
            - Worst Case: O(_linear_probe()) = O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)))
-                         - Let N is the table size of the top level table, M is the table size of the bottom level table
+                         - Let N be the table size of the top level table, M the table size of the bottom level table
                          - All assignments and return statement are O(1).
                          - Thus the time complexity is depends on the worst case of _linear_probe function.
 
@@ -389,7 +394,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
             key2, value = self.top_level_table[top_pos]
             self.top_level_table[top_pos] = None
             # Reinsert.
-            pos = self._get_table_index(key2)  # todo: check this
+            pos = self._get_table_index(key2)
             self.top_level_table[pos] = (key2, value)
             top_pos = (top_pos + 1) % self.table_size
 
@@ -486,30 +491,37 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
 
 class Iterator:
+    """
+    Iterator for the HashTable.
+
+    Defines two Enum classes to determine the scope and type of the iterator.
+    """
     class Scope(Enum):
+        """
+        Scope of the iterator.
+
+        ALL: Iterate over all value/key pairs of all tables in the hash table.
+        SINGLE: Iterate over all value/key pairs within a single table.
+        """
         ALL = 1
         SINGLE = 2
 
     class IType(Enum):
+        """
+        Type of the value yield by iterator.
+
+        KEY: Yield the key of the value/key pair.
+        VALUE: Yield the value of the value/key pair.
+        """
         KEY = 1
         VALUE = 2
 
     def __init__(self, table_array, scope: Scope, i_type: IType):
         """
            Explain:
-           -
+           - Constructor for the Iterator class.
 
-           Args:
-           -
-
-           Returns:
-           - result:
-
-
-           Complexity:
-           - Worst case:
-
-           - Best case:
+           Complexity: O(1)
         """
         self.scope = scope
         self.type = i_type
@@ -519,61 +531,54 @@ class Iterator:
     def __iter__(self):
         """
            Explain:
-           -
+           - Return the iterator object itself.
 
-           Args:
-           -
-
-           Raises:
-           -
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-
-           - Best case:
+           Complexity: O(1)
         """
         return self
 
     def __next__(self):
         """
            Explain:
-           -
-
-           Args:
-           -
+           - Returns the next item from the iterator. Depending on the scope of the iterator, it will either
+            iterate over all the value/key pairs in all the tables or in a single table, incrementing the index self.i
+            and the table index accordingly.
 
            Raises:
-           -
+           - StopIteration: when there is no more item in the table(s)
 
            Returns:
-           - result:
+           - the key or value of the next item in the table(s)
 
            Complexity:
-           - Worst case:
-
-           - Best case:
+           - Worst case: O (N * M), where N is the size of the table_array and M is the average size of the
+           table_array[i]. This is the case when the iterator has scope ALL and the table_array is full, so the function
+           goes through all the tables and all the items in each table.
+                    - comparison: O(1)
+                    - while loop: O(N)
+                        - assignment: O(1)
+                        - second while loop: O(M)
+                            - get_item: O(1)
+                            - yield: O(1)
+           - Best case: O(N), where N is the size of the table_array. This is the case when the iterator
+           has scope SINGLE. The function goes through all the items in only one table.
+                    - comparison: O(1)
+                    - while loop: O(N)
+                        - comparison: O(1)
+                        - get_item: O(1)
+                        - yield: O(1)
         """
         def get_item(table_array, i):
             """
                Explain:
-               -
-
-               Args:
-               -
-
-               Raises:
-               -
+               - Helper function to get the item at index i in a given table_array. It returns the key or value
+                depending on the type of the iterator.
 
                Returns:
-               - result:
+               - result: the key or value at index i in the given table_array
 
-               Complexity:
-               - Worst case:
-
-               - Best case: 
+               Complexity: O(1)
+                        - All access, if, numerical operation and return statement are O(1).
             """
             item = table_array[i]
             if self.type is self.IType.KEY:

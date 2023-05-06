@@ -248,11 +248,6 @@ class Trail:
         """
         return Trail(TrailSplit(Trail(None), Trail(None), Trail(None)))
 
-    # TrailSplit has a path_follow, which we need to return to when we're done with the current path.
-    # However, we can go into nested TrailSplits, so we need to keep track of all the paths we need to return to.
-    # When we enter a TrailSplit, we push the path_follow onto a stack.
-    # When we exit a TrailSplit, we get path_follow by popping from the stack.
-    # When the stack is empty, we're done with the trail.
     def follow_path(self, personality: WalkerPersonality) -> None:
         """
            Explain:
@@ -268,18 +263,33 @@ class Trail:
            - personality: walker with a predefined personality
 
            Complexity:
+           The best case is simply O(1) when the trail is empty.
+         
            - Best case: O(1) when the trail is empty
                         - create LinkedStack - O(1)
                         - check if trail is empty - O(1)
                         - return None - O(1)
 
-           - Worst case: when each encounter is a TrailSplit
+            For worst case, since the trail selection is heavily dependent on the personality, we will be focusing on
+            this aspect. We first notice that all operations are O(1), so the main concern is the number of iterations
+            of the while loop i.e. length of branch.
+            One such personality that will result in the worst case is a HardworkingWalker, which when encountering
+            a branch, will always prioritize a TrailSplit branch to try to travel a longer 'distance'. We acknowledge the
+            limitation that select_branch() does not have knowledge of the entire trail, so this will be the de facto
+            worst case.
+
+           - Worst case: O(M) when each encounter is a TrailSplit, and the personality is a HardworkingWalker,
+           where M is the length of the longest path (that is, the number of TrailSplits in the longest path).
                         - create LinkedStack - O(1)
+
+                        - do:
                         - check if trail is empty - O(1)
+                            - set trail to follow_paths.pop() - O(1)
                         - check if trail is a TrailSplit - O(1)
                         - push path_follow onto stack - O(1)
                         - call personality.select_branch - O(1)
                         - step into TrailSplit - O(1)
+                        - repeat while loop until follow_paths is empty- O(M)
         """
 
         trail = self.store
@@ -295,7 +305,7 @@ class Trail:
             elif isinstance(trail, TrailSplit):
                 follow_paths.push(trail.path_follow.store)
                 trail = trail.path_top.store if personality.select_branch(trail.path_top, trail.path_bottom) \
-                    else trail.path_bottom.store   # select trail based on personality
+                    else trail.path_bottom.store  # select trail based on personality
         return None
 
     def collect_all_mountains(self) -> list[Mountain]:
@@ -394,7 +404,6 @@ class Trail:
         traverse(self.store, [], 0, LinkedStack())
         return all_mountains
 
-
     def length_k_paths(self, k) -> list[list[Mountain]]:  # Input to this should not exceed k > 50, at most 5 branches.
         """
            Explain:
@@ -456,6 +465,3 @@ class Trail:
 
         traverse(self.store, [], 0, LinkedStack())
         return all_paths
-
-
-
