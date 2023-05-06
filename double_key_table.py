@@ -381,8 +381,15 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
            Complexity:
            - Worst Case: O()
+                        - The worst case time complexity of _linear_probe() is
+                          O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K))).
+                        - The worst case time complexity of setitem of the bottom level table is O(hash2(key2) + M*comp(K))
 
-           - Best Case: O()
+           - Best Case: O(O(hash1(key1) + hash2(key2)) + O(hash2(key2)))
+                        - When if not self.top_level_table[top_pos][1].is_empty()
+                        - The best case time complexity of _linear_probe() is O(hash1(key1) + hash2(key2)).
+                        - The best case time complexity of setitem of the bottom level table is O(hash2(key2))
+                        - All assignments and if statement are constant time.
         """
         top_pos, bottom_pos = self._linear_probe(key[0], key[1], False)
 
