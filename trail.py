@@ -263,18 +263,33 @@ class Trail:
            - personality: walker with a predefined personality
 
            Complexity:
+           The best case is simply O(1) when the trail is empty.
+         
            - Best case: O(1) when the trail is empty
                         - create LinkedStack - O(1)
                         - check if trail is empty - O(1)
                         - return None - O(1)
 
-           - Worst case: when each encounter is a TrailSplit
+            For worst case, since the trail selection is heavily dependent on the personality, we will be focusing on
+            this aspect. We first notice that all operations are O(1), so the main concern is the number of iterations
+            of the while loop i.e. length of branch.
+            One such personality that will result in the worst case is a HardworkingWalker, which when encountering
+            a branch, will always prioritize a TrailSplit branch to try to travel a longer 'distance'. We acknowledge the
+            limitation that select_branch() does not have knowledge of the entire trail, so this will be the de facto
+            worst case.
+
+           - Worst case: O(M) when each encounter is a TrailSplit, and the personality is a HardworkingWalker,
+           where M is the length of the longest path (that is, the number of TrailSplits in the longest path).
                         - create LinkedStack - O(1)
+
+                        - do:
                         - check if trail is empty - O(1)
+                            - set trail to follow_paths.pop() - O(1)
                         - check if trail is a TrailSplit - O(1)
                         - push path_follow onto stack - O(1)
                         - call personality.select_branch - O(1)
                         - step into TrailSplit - O(1)
+                        - repeat while loop until follow_paths is empty- O(M)
         """
 
         trail = self.store
