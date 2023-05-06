@@ -89,7 +89,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
            Args:
            - key1 is the key of top level table
-           - key2 is the key of bottopm level table
+           - key2 is the key of bottom level table
            - is_insert is the boolean
 
            Raises:
@@ -199,7 +199,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            - result: A list of all keys needed
 
            Complexity:
-           - Worst Case: O(_linear_probe() * M) =O((len(key1)) + N*comp(K) * (len(key2) + M*comp(K) * M)
+           - Worst Case: O(_linear_probe() * M) = O((len(key1)) + N*comp(K) * (len(key2) + M*comp(K) * M)
                         - Let N be the table size of the top level table, M the table size of the bottom level table.
                         - Comp(K) is the complexity of comparing two keys.
                         - When key is not None, since calling get_table_index() is worst case of O(linear_probing()),
@@ -380,13 +380,17 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            - KeyError: when the key doesn't exist.
 
            Complexity:
-           - Worst Case: O()
+           - Worst Case: O(O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)) + O(hash2(key2) + M*comp(K)) + O(N))
+                        - Let N be the table size of the top level table, M the table size of the bottom level table.
+                        - Comp(K) is the complexity of comparing two keys.
                         - The worst case time complexity of _linear_probe() is
                           O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K))).
                         - The worst case time complexity of setitem of the bottom level table is O(hash2(key2) + M*comp(K))
+                        - The time complexity of the while loop is O(N) where N is the size of top level table.
+                        - All assignments, numerical operations and if statement are constant time.
 
            - Best Case: O(O(hash1(key1) + hash2(key2)) + O(hash2(key2)))
-                        - When if not self.top_level_table[top_pos][1].is_empty()
+                        - When self.top_level_table[top_pos][1] is not empty
                         - The best case time complexity of _linear_probe() is O(hash1(key1) + hash2(key2)).
                         - The best case time complexity of setitem of the bottom level table is O(hash2(key2))
                         - All assignments and if statement are constant time.
