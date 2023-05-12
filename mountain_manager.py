@@ -1,8 +1,7 @@
 from algorithms.mergesort import mergesort
-from data_structures.hash_table import LinearProbeTable
 from double_key_table import DoubleKeyTable
 from mountain import Mountain
-from mountain_organiser import MountainOrganiser
+
 
 
 class MountainManager:
@@ -17,13 +16,13 @@ class MountainManager:
     def __init__(self) -> None:
         """
          Explain:
-           - Initialise a list self.organisers, which stores a list of tuple ('difficulty', MountainOrganiser)
+           - Initialise a Double Key Hash Table self.organisers, which stores a list of tuple ('difficulty', Mountain)
 
          Complexity:
          - Worst case: O(1), assignment is O(1) (constant time)
          - Best case: O(1), assignment is O(1) (constant time)
         """
-        self.organisers = DoubleKeyTable() # stores a list of tuple ('difficulty', MountainOrganiser)
+        self.organisers = DoubleKeyTable()
 
     def add_mountain(self, mountain: Mountain):
         """
@@ -31,115 +30,79 @@ class MountainManager:
           - mountain: Mountain to be added to the MountainManager
 
           Explain:
-            - Get the MountainOrganiser from self.organisers by comparing tuple[0];
-             if it exists, and add the mountain to it.
-            - If the MountainOrganiser does not exist, create a new MountainOrganiser and add the mountain to it.
+            - add the mountain into the hash table according to their difficulty_level as the key.
 
           Complexity:
-          - Worst case: O(N), where N is the length of self.organisers. This occurs when the MountainOrganiser with
-          the corresponding difficulty does not exist, and we have to create a new MountainOrganiser and
-          add the mountain to it.
-                    - The for loop is O(N), where N is the length of self.organisers.
-                        - comparison statement - O(1)
-                        - assignment statement - O(1)
-                        - add_mountain() - O(1)
-                    - create a new MountainOrganiser and add the mountain to it - O(1)
-                    - append to self.organisers - O(1)
+          - Worst case: O(DoubleKeyTable(setitem))(worst) = O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K))
+                        + hash2(key2) + P * comp(K) + R * (O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)))
 
-          - Best case: O(1), when the first MountainOrganiser in self.organisers has the same difficulty as the mountain
-          to add.
-                    - The for loop is O(1), since we only loop through the first element in self.organisers.
-                        - comparison statement - O(1)
-                        - assignment statement - O(1)
-                        - add_mountain() - O(1)
-                        - return statement - O(1)
+                        - In this function just add the mountain into the hash table by using the setitem function of
+                          DoubleKeyTable.
+                        - The worst case time complexity of _linear_probe() is
+                          O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K))) where N is the table size of the
+                          top level table, M is the table size of the bottom level table.
+                        - The worst case time complexity of bottom_level_table.setitem() is
+                          O(hash(key) + P*comp(K)) where P is the table size.
+                        - The worst case time  complexity of _rehash() function is
+                          O(R* _linear_probe()) where R is len(self)
+                        - Comp(K) is the complexity of comparing two keys.
+
+          - Best case:  O(DoubleKeyTable(setitem))(best) = O(hash1(key1) + hash2(key2) + hash2(key2))
+
+                        - The best case time complexity of _linear_probe() is O(hash1(key1) + hash2(key2)).
+                        - The best case time complexity of bottom_level_table.setitem() is O(hash2(key2)).
+                        - All assignments are O(1) and for best case when len(self) <= self,table_size /2, so without
+                          entering the if statement.
         """
-        # for organiser_tuple in self.organisers:
-        #     if mountain.difficulty_level == organiser_tuple[0]:
-        #         mo = organiser_tuple[1]
-        #         mo.add_mountains([mountain])
-        #         return
-        # mo = MountainOrganiser()
-        # mo.add_mountains([mountain])
-        # self.organisers.append((mountain.difficulty_level, mo))
-        # if self.organisers.top_level_table[mountain.difficulty_level] is None:
-        #     self.organisers.top_level_table[mountain.difficulty_level] = mountain.difficulty_level,LinearProbeTable()
-        #     self.organisers.top_level_table[mountain.difficulty_level][1][mountain.name] = mountain.name, mountain
-        # else:
-        #     self.organisers.top_level_table[mountain.difficulty_level][1][mountain.name] = mountain.name, mountain
-        self.organisers[str(mountain.difficulty_level),mountain.name] = mountain.name, mountain
+        self.organisers[str(mountain.difficulty_level),mountain.name] = mountain
 
 
     def remove_mountain(self, mountain: Mountain):
         """
           Arg:
-          - mountain: Mountain to be removed from the MountainManager
+          - mountain: Mountain to be removed from the Hash Table
 
           Explain:
-           - Get the MountainOrganiser from self.organisers by comparing tuple[0]; if it exists, remove the mountain
-              from it.
+           - delete the mountain in the hash table by finding their correct position
 
           Complexity:
-          - Worst case: O(N), where N is the length of self.organisers. This occurs when the MountainOrganiser with
-            the corresponding difficulty is at the end of self.organisers; and it has a length of 0 after deleting the
-            mountain, requiring us to remove the MountainOrganiser.
-                    - The for loop is O(N), where N is the length of self.organisers.
-                        - comparison statement - O(1)
-                        - assignment statement - O(1)
-                        - remove() - O(1)
-                        - check length of mo.mountain_lst - O(1)
-                        - remove mo from self.organisers - O(1)
-                        - return statement - O(1)
-          - Best case: O(1), when the first MountainOrganiser in self.organisers has the same difficulty as the mountain.
-                    - The for loop is O(1), since we only loop through the first element in self.organisers.
-                        - comparison statement - O(1)
-                        - assignment statement - O(1)
-                        - remove - O(1)
-                        - return statement - O(1)
+          - Worst case: O(DoubleKeyTable(delitem))(worst) =
+                        O(O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)) + O(hash2(key2) + M*comp(K)) + O(N))
+
+                        - Let N be the table size of the top level table, M the table size of the bottom level table.
+                        - Comp(K) is the complexity of comparing two keys.
+                        - The worst case time complexity of _linear_probe() is
+                          O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K))).
+                        - The worst case time complexity of setitem of the bottom level table is O(hash2(key2) + M*comp(K))
+                        - The time complexity of the while loop is O(N) where N is the size of top level table.
+                        - All assignments, numerical operations and if statement are constant time.
+
+          - Best case: O(DoubleKeyTable(delitem))(best) = O(O(hash1(key1) + hash2(key2)) + O(hash2(key2)))
+
+                        - When self.top_level_table[top_pos][1] is not empty
+                        - The best case time complexity of _linear_probe() is O(hash1(key1) + hash2(key2)).
+                        - The best case time complexity of setitem of the bottom level table is O(hash2(key2))
+                        - All assignments and if statement are constant time.
         """
-        # for organiser_tuple in self.organisers:
-        #     if mountain.difficulty_level == organiser_tuple[0]:
-        #         mo = organiser_tuple[1]
-        #         mo.mountain_lst.remove(mountain)
-        #         if len(mo.mountain_lst) == 0:
-        #             self.organisers.remove(organiser_tuple)
-        #         return
-        # raise KeyError()
-        self.organisers[mountain.difficulty_level,mountain.name] = None
+        del self.organisers[str(mountain.difficulty_level),mountain.name]
 
     def edit_mountain(self, old: Mountain, new: Mountain):
         """
           Arg:
-          - old: Mountain to be removed from the MountainManager
-          - new: Mountain to be added to the MountainManager
+          - old: Mountain to be removed from the hash table
+          - new: Mountain to be added to the hash table
 
           Explain:
             - Essentially, this function rewrites the detail (diff, length) of a mountain.
-            Gets the MountainOrganiser from self.organisers by comparing tuple[0]; if it exists, remove it and then
-            add the new mountain to the MountainOrganiser.
-
+            Gets the mountain from hash table by comparing the keys; if it exists, remove it and update the new mountain
+            based on their difficulty_level and name.
           Complexity:
-          - Worst case: O(N), where N is the length of self.organisers. This occurs when the MountainOrganiser with
-            the corresponding difficulty is at the end of self.organisers.
-                    - The for loop is O(N), where N is the length of self.organisers.
-                        - comparison statement - O(1)
-                        - remove() - O(1)
-                        - append to mo.mountain_lst - O(1)
+          - Worst case: O(add_mountain)(worst) + O(remove_mountain)(worst)
+                        - Since this function just call the add_mountain and remove_mountain to update the new mountain.
 
-          - Best case: O(1), when the first MountainOrganiser contains the mountain to be edited.
-                    - The for loop is O(1), since we only loop through the first element in self.organisers.
-                        - comparison statement - O(1)
-                        - remove() - O(1)
-                        - append to mo.mountain_lst - O(1)
-                        - return statement - O(1)
+          - Best case: O(add_mountain)(best) + O(remove_mountain)(best)
+                        - Since this function just call the add_mountain and remove_mountain to update the new mountain.
         """
-        # for organiser_tuple in self.organisers:
-        #     for mountain in organiser_tuple[1].mountain_lst:
-        #         if mountain == old:
-        #             organiser_tuple[1].mountain_lst.remove(mountain)
-        #             organiser_tuple[1].mountain_lst.append(new)
-        #             return
-        # raise KeyError()
         self.remove_mountain(old)
         self.add_mountain(new)
 
@@ -149,45 +112,43 @@ class MountainManager:
           - diff: Difficulty of mountains. Given this, return all mountains with this difficulty as a list.
 
           Explain:
-            - Get the MountainOrganiser with difficulty = diff from self.organisers by comparing tuple[0];
-            if it exists, return the list mountain_lst from the MountainOrganiser.
+            - Get the mountains with difficulty = diff from self.organisers by calling the values() function;
 
           Complexity:
-          - Worst case: O(N), where N is the length of self.organisers. This occurs when the MountainOrganiser with
-            the corresponding difficulty is at the end of self.organisers/ does not exist.
-                    - The for loop is O(N), where N is the length of self.organisers.
-                        - comparison statement - O(1)
-                    - return statement - O(1)
+          - Worst case: O(DoubleKeyTable.values())(worst) = O(N*M)
+                        - When key is none, where N is the number of items in the top level table
+                        - and M is the (average) number of items in the bottom level table.
+                        - All assignments, if statements, return statement are constant time.
 
-          - Best case: O(1), when the first MountainOrganiser is the one with the corresponding difficulty.
-                    - The for loop is O(1), since we only loop through the first element in self.organisers.
-                        - comparison statement - O(1)
-                        - return statement - O(1)
+          - Best case: O(DoubleKeyTable.values())(best) = O(hash1(key) * hash2(key) * N)
+                        - when key is the first element of the first table, and that second position of the second
+                          table is empty (best case for linear probing).
+                        - N is the number of items in the table.
         """
-        # for organiser_tuple in self.organisers:
-        #     if diff == organiser_tuple[0]:
-        #         return organiser_tuple[1].mountain_lst
-        # return []  # if no mountains with that difficulty
         return self.organisers.values(str(diff))
     def group_by_difficulty(self):
         """
           Explain:
             - Return a list of lists sorted by difficulty. Each list contains the group of all mountains with the
-            same difficulty; we also rely upon the fact that each group is also already sorted by length/order by
-            MountainOrganiser.
+            same difficulty; we also rely upon the fact that each group is also already sorted by length/order
 
-          Complexity: O(NlogN * comp(tuple))
-                    - mergesort() - O(NlogN * comp(tuple)), where N is the length of self.organisers.
-                    - for loop - O(N), where N is the length of self.organisers.
-                        - append, accessing mountain_lst - O(1)
-                    - return statement - O(1)
+          Complexity:
+          - Worst case: O(DoubleKeyTable.keys())(worst) +  O(NlogN * comp(tuple)) +O(N)
+                        - where N is the length of self.organisers.
+                        - for loop - O(N), where N is the length of self.organisers.
+                            - append, accessing mountain_lst - O(1)
+                        - return statement - O(1)
 
-                    overall: O(NlogN * comp(tuple))
+          - Worst case: O(DoubleKeyTable.keys())(best) +  O(NlogN * comp(tuple)) +O(N)
+                        - where N is the length of self.organisers.
+                        - for loop - O(N), where N is the length of self.organisers.
+                            - append, accessing mountain_lst - O(1)
+                        - return statement - O(1)
         """
         diff_groups = []
-        self.organisers = mergesort(self.organisers)
-        for organiser_tuple in self.organisers:
-            diff_groups.append(organiser_tuple[1].mountain_lst)
+        keys = mergesort(self.organisers.keys())
+        for difficulty in keys:
+            diff_groups.append(self.organisers.values(difficulty))
         return diff_groups
 
 

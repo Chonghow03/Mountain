@@ -94,7 +94,6 @@ class TestDoubleHash(unittest.TestCase):
 
         self.assertEqual(set(dt.keys()), {"Tim", "Amy", "May", "Ivy", "Het"})
         self.assertEqual(set(dt.keys("May")), {"Ben", "Tom", "Jim"})
-
         self.assertEqual(set(dt.values()), {1, 2, 3, 4, 5, 6, 7, 8})
         self.assertEqual(set(dt.values("Tim")), {1, 6})
 
