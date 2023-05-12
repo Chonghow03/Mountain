@@ -89,7 +89,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
 
            Args:
            - key1 is the key of top level table
-           - key2 is the key of bottopm level table
+           - key2 is the key of bottom level table
            - is_insert is the boolean
 
            Raises:
@@ -159,6 +159,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            Complexity:
            - Worst Case: O(_linear_probe()) = O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)))
                          - Let N is the table size of the top level table, M is the table size of the bottom level table
+                         - Comp(K) is the complexity of comparing two keys.
                          - Time complexity is the worst case of _linear_probe() function
 
            - Best Case: O(_linear_probe()) = O(hash1(key1) + hash2(key2))
@@ -198,8 +199,9 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            - result: A list of all keys needed
 
            Complexity:
-           - Worst Case: O(_linear_probe() * M) =O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)) * M)
+           - Worst Case: O(_linear_probe() * M) = O((len(key1)) + N*comp(K) * (len(key2) + M*comp(K) * M)
                         - Let N be the table size of the top level table, M the table size of the bottom level table.
+                        - Comp(K) is the complexity of comparing two keys.
                         - When key is not None, since calling get_table_index() is worst case of O(linear_probing()),
                         - and then iterating through the bottom level table is O(M).
                         - All if, assignment, and return statements are O(1).
@@ -253,10 +255,12 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            - Worst Case: O(N*M)
                         - When key is none, where N is the number of items in the top level table
                         - and M is the (average) number of items in the bottom level table.
+                        - All assignments, if statements, return statement are constant time.
 
-           - Best Case: O(hash1(key) * hash2(key) * N) when key is the first element of the first table, and that
-                    second position of the second table is empty (best case for linear probing).
-                    N is the number of items in the table.
+           - Best Case: O(hash1(key) * hash2(key) * N)
+                        - when key is the first element of the first table, and that second position of the second
+                          table is empty (best case for linear probing).
+                        - N is the number of items in the table.
         """
         values = []
 
@@ -308,6 +312,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
           Complexity:
            - Worst Case: O(_linear_probe()) = O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)))
                          - Let N be the table size of the top level table, M the table size of the bottom level table
+                         - Comp(K) is the complexity of comparing two keys.
                          - All assignments and return statement are O(1).
                          - Thus the time complexity is depends on the worst case of _linear_probe function.
 
@@ -346,6 +351,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
                           O(hash(key) + P*comp(K)) where P is the table size.
                         - The worst case time  complexity of _rehash() function is
                           O(R* _linear_probe()) where R is len(self)
+                        - Comp(K) is the complexity of comparing two keys.
 
 
            - Best Case: O(hash1(key1) + hash2(key2) + hash2(key2))
@@ -374,9 +380,20 @@ class DoubleKeyTable(Generic[K1, K2, V]):
            - KeyError: when the key doesn't exist.
 
            Complexity:
-           - Worst Case: O()
+           - Worst Case: O(O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K)) + O(hash2(key2) + M*comp(K)) + O(N))
+                        - Let N be the table size of the top level table, M the table size of the bottom level table.
+                        - Comp(K) is the complexity of comparing two keys.
+                        - The worst case time complexity of _linear_probe() is
+                          O((O(len(key1)) + N*comp(K)) * (O(len(key2)) + M*comp(K))).
+                        - The worst case time complexity of setitem of the bottom level table is O(hash2(key2) + M*comp(K))
+                        - The time complexity of the while loop is O(N) where N is the size of top level table.
+                        - All assignments, numerical operations and if statement are constant time.
 
-           - Best Case: O()
+           - Best Case: O(O(hash1(key1) + hash2(key2)) + O(hash2(key2)))
+                        - When self.top_level_table[top_pos][1] is not empty
+                        - The best case time complexity of _linear_probe() is O(hash1(key1) + hash2(key2)).
+                        - The best case time complexity of setitem of the bottom level table is O(hash2(key2))
+                        - All assignments and if statement are constant time.
         """
         top_pos, bottom_pos = self._linear_probe(key[0], key[1], False)
 
@@ -522,6 +539,9 @@ class Iterator:
            - Constructor for the Iterator class.
 
            Complexity: O(1)
+                       - Best case = worst case = O(1)
+                       - All assignments are constant time.
+
         """
         self.scope = scope
         self.type = i_type
@@ -534,6 +554,8 @@ class Iterator:
            - Return the iterator object itself.
 
            Complexity: O(1)
+                       - - Best case = worst case = O(1)
+                       - Return statement is constant time.
         """
         return self
 
@@ -560,6 +582,7 @@ class Iterator:
                         - second while loop: O(M)
                             - get_item: O(1)
                             - yield: O(1)
+
            - Best case: O(N), where N is the size of the table_array. This is the case when the iterator
            has scope SINGLE. The function goes through all the items in only one table.
                     - comparison: O(1)

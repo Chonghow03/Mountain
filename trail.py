@@ -309,80 +309,10 @@ class Trail:
         return None
 
     def collect_all_mountains(self) -> list[Mountain]:
-        """
-           Explain:
-           - Returns a list of all mountains on the trail.
-
-           Args:
-           - None
-
-           Raises:
-           - None
-
-           Returns:
-           - result: list of all mountains created
-
-           Complexity:
-           - Worst case:
-           - Best case:
-        """
-
-        # mountains = []
-        #
-        # path = self.store
-        #
-        # # the size of the following two stacks should always be same, and differ by at most 1 when traversing
-        # follow_paths = LinkedStack()
-        # bottom_paths = LinkedStack()
-        #
-        # while True:
-        #     if path is None:
-        #         # check if path_to_join is non-empty (exiting a TrailSplit)
-        #         if follow_paths.is_empty():
-        #             break
-        #         else:
-        #             if len(follow_paths) == len(bottom_paths):  # nav bottom before we exit
-        #                 path = bottom_paths.pop()
-        #             else:
-        #                 path = follow_paths.pop()
-        #
-        #     if type(path) == TrailSeries:
-        #         mountains.append(path.mountain)
-        #         path = path.following.store
-        #     elif type(path) == TrailSplit:
-        #
-        #         # register path_to_join
-        #         follow_paths.push(path.path_follow.store)
-        #
-        #         # store bottom path
-        #         bottom_paths.push(path.path_bottom.store)
-        #
-        #         # go into top path
-        #         path = path.path_top.store
-        #
-        # return mountains
-
         import copy
         all_mountains = []
 
         def traverse(trail, current_path, current_k, follow_stack=None):
-            """
-               Explain:
-               -
-
-               Args:
-               -
-
-               Raises:
-               -
-
-               Returns:
-               - result:
-
-               Complexity:
-               - Worst case:
-               - Best case:
-            """
             follow_stack_copy = copy.deepcopy(follow_stack)
             current_path_copy = copy.deepcopy(current_path)
             if trail is None:
@@ -405,48 +335,9 @@ class Trail:
         return all_mountains
 
     def length_k_paths(self, k) -> list[list[Mountain]]:  # Input to this should not exceed k > 50, at most 5 branches.
-        """
-           Explain:
-           - Returns a list of all paths of containing exactly k mountains.
-             Paths are represented as lists of mountains.
-             Paths are unique if they take a different branch, even if this results in the same set of mountains.
-
-           Args:
-           - k, which is an integer
-
-           Raises:
-           - None
-
-           Returns:
-           - result:
-
-           Complexity:
-           - Worst case:
-           - Best case:
-        """
         all_paths = []
 
         def traverse(trail, current_path, current_k, follow_stack=None):
-            """
-               Explain:
-               -
-
-               Args:
-               - trail
-               - current_path
-               - current_k
-               - follow_stack
-
-               Raises:
-               - None
-
-               Returns:
-               - result:
-
-               Complexity:
-               - Worst case:
-               - Best case:
-            """
             follow_stack_copy = copy.deepcopy(follow_stack)
             current_path_copy = copy.deepcopy(current_path)
             if trail is None:
