@@ -3,14 +3,14 @@ from double_key_table import DoubleKeyTable
 from mountain import Mountain
 
 
-
 class MountainManager:
     """
     MountainManager acts as a store for mountains, and provides methods to add, remove and edit mountains.
 
-    Mountains are stored in a list of tuples, which contains MountainOrganisers sorted by difficulty level. The choice
-    of data structure allows us to easily call mergesort on the list of tuples (at group_by_difficulty()),
-    which sorts the MountainOrganisers by difficulty, thereby increasing the efficiency of the MountainManager.
+    Mountains are stored in a double key hash table, with the difficulty level as the first key and the mountain name
+    as the second key. This allows for efficient lookup of mountains by difficulty level and name.
+    The property of double key table means that our implementation automatically groups mountains by difficulty level
+    (key1), and allows for efficient lookup of mountains by name (key2).
    """
 
     def __init__(self) -> None:
@@ -54,8 +54,7 @@ class MountainManager:
                         - All assignments are O(1) and for best case when len(self) <= self,table_size /2, so without
                           entering the if statement.
         """
-        self.organisers[str(mountain.difficulty_level),mountain.name] = mountain
-
+        self.organisers[str(mountain.difficulty_level), mountain.name] = mountain
 
     def remove_mountain(self, mountain: Mountain):
         """
@@ -84,7 +83,7 @@ class MountainManager:
                         - The best case time complexity of setitem of the bottom level table is O(hash2(key2))
                         - All assignments and if statement are constant time.
         """
-        del self.organisers[str(mountain.difficulty_level),mountain.name]
+        del self.organisers[str(mountain.difficulty_level), mountain.name]
 
     def edit_mountain(self, old: Mountain, new: Mountain):
         """
@@ -126,6 +125,7 @@ class MountainManager:
                         - N is the number of items in the table.
         """
         return self.organisers.values(str(diff))
+
     def group_by_difficulty(self):
         """
           Explain:
@@ -150,5 +150,3 @@ class MountainManager:
         for difficulty in keys:
             diff_groups.append(self.organisers.values(difficulty))
         return diff_groups
-
-

@@ -503,7 +503,7 @@ class DoubleKeyTable(Generic[K1, K2, V]):
         for item in self.top_level_table:
             if item is not None:
                 (key, value) = item
-                result += "(" + str(key) + "," + str(value) + ")\n"
+                result += "(" + str(key) + ", " + str(value) + ")\n"
         return result
 
 
